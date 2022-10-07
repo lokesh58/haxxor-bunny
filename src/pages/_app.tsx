@@ -1,17 +1,8 @@
 import type { AppProps } from 'next/app';
-import Head from 'next/head';
 import '../styles/globals.css';
 
 function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <>
-      <Head>
-        <title>Haxxor Bunny</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-      <Component {...pageProps} />
-    </>
-  );
+  return <Component {...pageProps} />;
 }
 
 export default MyApp;

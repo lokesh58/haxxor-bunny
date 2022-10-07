@@ -1,0 +1,43 @@
+.container {
+  padding: 0 1rem;
+}
+
+.heading {
+  align-items: center;
+  display: flex;
+}
+
+.botPfp {
+  border-radius: 50%;
+}
+
+.botName {
+  margin-left: 1rem;
+}
+
+.links a {
+  background-color: lightblue;
+  border-radius: 8px;
+  color: black;
+  padding: 0.5rem;
+  text-decoration-line: none;
+}
+
+.links a:hover {
+  background-color: aquamarine;
+}
+
+.links a:not(:first-child) {
+  margin-left: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .links a {
+    background-color: darkcyan;
+    color: white;
+  }
+
+  .links a:hover {
+    background-color: dodgerblue;
+  }
+}
