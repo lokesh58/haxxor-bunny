@@ -4,7 +4,6 @@ specifiers:
   '@types/node': 18.8.2
   '@types/react': 18.0.21
   '@types/react-dom': 18.0.6
-  discord-api-types: ^0.37.12
   discord.js: ^14.5.0
   eslint: 8.24.0
   eslint-config-next: 12.3.1
@@ -18,7 +17,6 @@ specifiers:
   typescript: 4.8.4
 
 dependencies:
-  discord-api-types: 0.37.12
   discord.js: 14.5.0
   next: 12.3.1_biqbaboplfbrettd7655fr4n2y
   react: 18.2.0
