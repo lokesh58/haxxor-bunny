@@ -4,9 +4,11 @@ import {
   InteractionResponseType,
   InteractionType,
   MessageFlags,
+  Routes,
 } from 'discord-api-types/v10';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import nacl from 'tweetnacl';
+import { restClient } from '../../../utils/discord';
 
 function verifyKey(req: NextApiRequest): boolean {
   const signature = req.headers['x-signature-ed25519'] as string;
@@ -24,11 +26,11 @@ function verifyKey(req: NextApiRequest): boolean {
   );
 }
 
-type ResponseType = string | APIInteractionResponse;
+type ResponseData = string | APIInteractionResponse;
 
 export default async function discordInteractionsHandler(
   req: NextApiRequest,
-  res: NextApiResponse<ResponseType>
+  res: NextApiResponse<ResponseData>
 ): Promise<void> {
   if (req.method !== 'POST') {
     return res.status(405).send('Method not allowed');
@@ -64,12 +66,19 @@ export default async function discordInteractionsHandler(
     }
   } catch (err) {
     console.error(err);
-    return res.send({
-      type: InteractionResponseType.ChannelMessageWithSource,
-      data: {
-        content: '🐛 Something went wrong, please try again later!',
-        flags: MessageFlags.Ephemeral,
-      },
-    });
+    const errorMessageBody = {
+      content: '🐛 Something went wrong, please try again later!',
+      flags: MessageFlags.Ephemeral,
+    };
+    if (res.writableEnded) {
+      await restClient.post(Routes.webhook(process.env.DISCORD_APP_ID!, interaction.token), {
+        body: errorMessageBody,
+      });
+    } else {
+      res.send({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: errorMessageBody,
+      });
+    }
   }
 }
