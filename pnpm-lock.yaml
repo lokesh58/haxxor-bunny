@@ -4,6 +4,7 @@ specifiers:
   '@types/node': 18.8.2
   '@types/react': 18.0.21
   '@types/react-dom': 18.0.6
+  discord-interactions: ^3.2.0
   eslint: 8.24.0
   eslint-config-next: 12.3.1
   eslint-config-prettier: 8.5.0
@@ -14,6 +15,7 @@ specifiers:
   typescript: 4.8.4
 
 dependencies:
+  discord-interactions: 3.2.0
   next: 12.3.1_biqbaboplfbrettd7655fr4n2y
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
@@ -563,6 +565,13 @@ packages:
     dependencies:
       path-type: 4.0.0
     dev: true
+
+  /discord-interactions/3.2.0:
+    resolution: {integrity: sha512-/J25RpYlokRW+2HmU5C2xo9bcgCWIzCl+MRRLCL/XvD+Hqe2WyQc639vUUKUNi6hdSdWb2kGNZDkMZxDky2dZg==}
+    engines: {node: '>=12'}
+    dependencies:
+      tweetnacl: 1.0.3
+    dev: false
 
   /doctrine/2.1.0:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
@@ -1832,6 +1841,10 @@ packages:
       tslib: 1.14.1
       typescript: 4.8.4
     dev: true
+
+  /tweetnacl/1.0.3:
+    resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
+    dev: false
 
   /type-check/0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
