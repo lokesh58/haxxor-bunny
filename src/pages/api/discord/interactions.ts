@@ -1,8 +1,21 @@
-import { InteractionResponseType, InteractionType, verifyKey } from 'discord-interactions';
+import { APIInteraction, InteractionResponseType, InteractionType } from 'discord-api-types/v10';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import nacl from 'tweetnacl';
 
-function convertHeader(headerValue: string | string[] | undefined): string {
-  return (Array.isArray(headerValue) ? headerValue[0] : headerValue) ?? '';
+function verifyKey(req: NextApiRequest): boolean {
+  const signature = req.headers['x-signature-ed25519'] as string;
+  const timestamp = req.headers['x-signature-timestamp'] as string;
+  const rawBody = JSON.stringify(req.body);
+
+  if (!signature || !timestamp) {
+    return false;
+  }
+
+  return nacl.sign.detached.verify(
+    Buffer.from(timestamp + rawBody),
+    Buffer.from(signature, 'hex'),
+    Buffer.from(process.env.DISCORD_APP_PUBLIC_KEY!, 'hex')
+  );
 }
 
 export default async function discordInteractionsHandler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
@@ -11,26 +24,23 @@ export default async function discordInteractionsHandler(req: NextApiRequest, re
   }
 
   // Verify if it is a valid request from discord
-  const signature = convertHeader(req.headers['x-signature-ed25519']);
-  const timestamp = convertHeader(req.headers['x-signature-timestamp']);
-  const isValidRequest = verifyKey(JSON.stringify(req.body), signature, timestamp, process.env.DISCORD_APP_PUBLIC_KEY!);
-  if (!isValidRequest) {
+  if (!verifyKey(req)) {
     return res.status(401).send('Bad request signature');
   }
 
-  const { type, data } = req.body;
+  const { type, data } = req.body as APIInteraction;
 
   // Handle verification requests
-  if (type === InteractionType.PING) {
-    return res.json({ type: InteractionResponseType.PONG });
+  if (type === InteractionType.Ping) {
+    return res.json({ type: InteractionResponseType.Pong });
   }
 
   // Handle slash commands
-  if (type === InteractionType.APPLICATION_COMMAND) {
+  if (type === InteractionType.ApplicationCommand) {
     const { name } = data;
     if (name === 'ping') {
       return res.send({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+        type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           content: 'Pong',
         },
