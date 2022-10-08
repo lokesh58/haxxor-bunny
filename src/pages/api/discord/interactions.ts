@@ -1,4 +1,10 @@
-import { APIInteraction, InteractionResponseType, InteractionType } from 'discord-api-types/v10';
+import {
+  APIInteraction,
+  APIInteractionResponse,
+  InteractionResponseType,
+  InteractionType,
+  MessageFlags,
+} from 'discord-api-types/v10';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import nacl from 'tweetnacl';
 
@@ -18,7 +24,12 @@ function verifyKey(req: NextApiRequest): boolean {
   );
 }
 
-export default async function discordInteractionsHandler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
+type ResponseType = string | APIInteractionResponse;
+
+export default async function discordInteractionsHandler(
+  req: NextApiRequest,
+  res: NextApiResponse<ResponseType>
+): Promise<void> {
   if (req.method !== 'POST') {
     return res.status(405).send('Method not allowed');
   }
@@ -28,23 +39,37 @@ export default async function discordInteractionsHandler(req: NextApiRequest, re
     return res.status(401).send('Bad request signature');
   }
 
-  const { type, data } = req.body as APIInteraction;
-
-  // Handle verification requests
-  if (type === InteractionType.Ping) {
-    return res.json({ type: InteractionResponseType.Pong });
-  }
-
-  // Handle slash commands
-  if (type === InteractionType.ApplicationCommand) {
-    const { name } = data;
-    if (name === 'ping') {
-      return res.send({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: 'Pong',
-        },
-      });
+  const interaction = req.body as APIInteraction;
+  try {
+    switch (interaction.type) {
+      case InteractionType.Ping:
+        return res.send({ type: InteractionResponseType.Pong });
+      case InteractionType.ApplicationCommand:
+        // TODO: Handle commands properly
+        return res.send({
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            content: 'Pong',
+          },
+        });
+      default:
+        console.warn(`Received unhandled interaction type: ${interaction.type}`);
+        return res.send({
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            content: "😕 This shouldn't be here...",
+            flags: MessageFlags.Ephemeral,
+          },
+        });
     }
+  } catch (err) {
+    console.error(err);
+    return res.send({
+      type: InteractionResponseType.ChannelMessageWithSource,
+      data: {
+        content: '🐛 Something went wrong, please try again later!',
+        flags: MessageFlags.Ephemeral,
+      },
+    });
   }
 }
