@@ -5,10 +5,10 @@ import {
   InteractionType,
   MessageFlags,
   Routes,
-} from 'discord-api-types/v10';
-import type { NextApiRequest, NextApiResponse } from 'next';
+} from 'discord.js';
+import { NextApiRequest, NextApiResponse } from 'next';
 import nacl from 'tweetnacl';
-import { restClient } from '../../../utils/discord';
+import { applicationCommandAutocompleteHandler, applicationCommandHandler, restClient } from '../../../utils/discord';
 
 function verifyKey(req: NextApiRequest): boolean {
   const signature = req.headers['x-signature-ed25519'] as string;
@@ -22,7 +22,7 @@ function verifyKey(req: NextApiRequest): boolean {
   return nacl.sign.detached.verify(
     Buffer.from(timestamp + rawBody),
     Buffer.from(signature, 'hex'),
-    Buffer.from(process.env.DISCORD_APP_PUBLIC_KEY!, 'hex')
+    Buffer.from(process.env.DISCORD_APP_PUBLIC_KEY!, 'hex'),
   );
 }
 
@@ -30,7 +30,7 @@ type ResponseData = string | APIInteractionResponse;
 
 export default async function discordInteractionsHandler(
   req: NextApiRequest,
-  res: NextApiResponse<ResponseData>
+  res: NextApiResponse<ResponseData>,
 ): Promise<void> {
   if (req.method !== 'POST') {
     return res.status(405).send('Method not allowed');
@@ -45,15 +45,14 @@ export default async function discordInteractionsHandler(
   try {
     switch (interaction.type) {
       case InteractionType.Ping:
+        console.info('Interaction type ping (1) received');
         return res.send({ type: InteractionResponseType.Pong });
       case InteractionType.ApplicationCommand:
-        // TODO: Handle commands properly
-        return res.send({
-          type: InteractionResponseType.ChannelMessageWithSource,
-          data: {
-            content: 'Pong',
-          },
-        });
+        await applicationCommandHandler(res, interaction);
+        break;
+      case InteractionType.ApplicationCommandAutocomplete:
+        await applicationCommandAutocompleteHandler(res, interaction);
+        break;
       default:
         console.warn(`Received unhandled interaction type: ${interaction.type}`);
         return res.send({
