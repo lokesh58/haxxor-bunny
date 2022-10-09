@@ -21,6 +21,18 @@ export default async function discordInteractionsHandler(
     return res.status(401).send('Bad request signature');
   }
 
+  setTimeout(() => {
+    if (!res.writableEnded) {
+      res.send({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: {
+          content: '🕛 Request timed out, please try again later!',
+          flags: MessageFlags.Ephemeral,
+        },
+      });
+    }
+  }, 2_000);
+
   const interaction = req.body as APIInteraction;
   try {
     switch (interaction.type) {
@@ -45,7 +57,7 @@ export default async function discordInteractionsHandler(
     }
   } catch (err) {
     console.error(err);
-    if (res.writable) {
+    if (!res.writableEnded) {
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {

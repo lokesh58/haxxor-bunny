@@ -10,12 +10,17 @@ import {
 import { NextApiResponse } from 'next';
 
 abstract class BaseHandler<R extends APIInteractionResponse, I extends APIInteraction> {
-  protected res: NextApiResponse<R>;
+  private res: NextApiResponse<R>;
   protected interaction: I;
 
   constructor(res: NextApiResponse<R>, interaction: I) {
     this.res = res;
     this.interaction = interaction;
+  }
+
+  protected sendResponse(body: R): void {
+    if (this.res.writableEnded) return; // Can happen if response time expired (3s after receiving interaction)
+    this.res.send(body);
   }
 
   public abstract handle(): Awaitable<void>;
