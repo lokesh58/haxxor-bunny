@@ -7,6 +7,7 @@ import {
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
 import nacl from 'tweetnacl';
+import commands from '../commands';
 
 export const restClient = new REST().setToken(process.env.DISCORD_BOT_TOKEN!);
 
@@ -26,17 +27,18 @@ export function verifyKey(req: NextApiRequest): boolean {
   );
 }
 
-export async function applicationCommandHandler(
+export function applicationCommandHandler(
   res: NextApiResponse<APIInteractionResponse>,
   interaction: APIApplicationCommandInteraction,
 ): Promise<void> {
-  // TODO: Pick the command and use it's handler
-  res.send({
-    type: 4,
-    data: {
-      content: 'Pong',
-    },
-  });
+  const {
+    data: { name: cmdName, id: cmdId },
+  } = interaction;
+  const command = commands[cmdName];
+  if (!command) {
+    throw new Error(`Unknown command: (${cmdName}, ${cmdId})`);
+  }
+  return new command.CommandHandlerClass(res, interaction).handle();
 }
 
 export async function applicationCommandAutocompleteHandler(
