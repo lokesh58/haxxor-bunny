@@ -45,7 +45,7 @@ export default async function discordInteractionsHandler(
   try {
     switch (interaction.type) {
       case InteractionType.Ping:
-        console.info('Interaction type ping (1) received');
+        console.info('Interaction type ping received');
         return res.send({ type: InteractionResponseType.Pong });
       case InteractionType.ApplicationCommand:
         await applicationCommandHandler(res, interaction);
