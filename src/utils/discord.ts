@@ -3,13 +3,11 @@ import {
   APIApplicationCommandAutocompleteResponse,
   APIApplicationCommandInteraction,
   APIInteractionResponse,
-  REST,
+  Awaitable,
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
 import nacl from 'tweetnacl';
 import commands from '../commands';
-
-export const restClient = new REST().setToken(process.env.DISCORD_BOT_TOKEN!);
 
 export function verifyKey(req: NextApiRequest): boolean {
   const signature = req.headers['x-signature-ed25519'] as string;
@@ -30,7 +28,7 @@ export function verifyKey(req: NextApiRequest): boolean {
 export function applicationCommandHandler(
   res: NextApiResponse<APIInteractionResponse>,
   interaction: APIApplicationCommandInteraction,
-): Promise<void> {
+): Awaitable<void> {
   const {
     data: { name: cmdName, id: cmdId },
   } = interaction;
@@ -41,10 +39,10 @@ export function applicationCommandHandler(
   return new command.CommandHandlerClass(res, interaction).handle();
 }
 
-export async function applicationCommandAutocompleteHandler(
+export function applicationCommandAutocompleteHandler(
   res: NextApiResponse<APIApplicationCommandAutocompleteResponse>,
   interaction: APIApplicationCommandAutocompleteInteraction,
-): Promise<void> {
+): Awaitable<void> {
   // TODO: Pick the command and use it's handler
   res.send({
     type: 8,

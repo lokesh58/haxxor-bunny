@@ -4,15 +4,9 @@ import {
   InteractionResponseType,
   InteractionType,
   MessageFlags,
-  Routes,
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
-import {
-  applicationCommandAutocompleteHandler,
-  applicationCommandHandler,
-  restClient,
-  verifyKey,
-} from '../../../utils/discord';
+import { applicationCommandAutocompleteHandler, applicationCommandHandler, verifyKey } from '../../../utils/discord';
 
 export default async function discordInteractionsHandler(
   req: NextApiRequest,
@@ -51,18 +45,13 @@ export default async function discordInteractionsHandler(
     }
   } catch (err) {
     console.error(err);
-    const errorMessageBody = {
-      content: '🐛 Something went wrong, please try again later!',
-      flags: MessageFlags.Ephemeral,
-    };
-    if (res.writableEnded || res.closed) {
-      await restClient.post(Routes.webhook(interaction.application_id, interaction.token), {
-        body: errorMessageBody,
-      });
-    } else {
+    if (res.writable) {
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
-        data: errorMessageBody,
+        data: {
+          content: '🐛 Something went wrong, please try again later!',
+          flags: MessageFlags.Ephemeral,
+        },
       });
     }
   }
