@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { BotInviteUrl } from './utils/constants';
+import { ExternalBotInviteUrl, InternalBotInviteUrl } from './utils/constants';
 
 export default function middleware(request: NextRequest) {
-  if (request.nextUrl.pathname === '/invite') {
-    return NextResponse.redirect(BotInviteUrl);
+  if (request.nextUrl.pathname === InternalBotInviteUrl) {
+    return NextResponse.redirect(ExternalBotInviteUrl);
   }
 }
