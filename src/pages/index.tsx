@@ -2,7 +2,7 @@ import { NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import styles from '../styles/Home.module.css';
-import { botInviteUrl } from '../utils/constants';
+import { BotInviteUrl } from '../utils/constants';
 
 const Home: NextPage = () => {
   const pfpSize = 64;
@@ -24,7 +24,7 @@ const Home: NextPage = () => {
           <span className={styles.botName}>Haxxor Bunny</span>
         </h1>
         <div className={styles.links}>
-          <a href={botInviteUrl} target="_blank" rel="noreferrer">
+          <a href={BotInviteUrl} target="_blank" rel="noreferrer">
             Invite Me!
           </a>
           <a href="https://discord.gg/h9bHnxX9XK" target="_blank" rel="noreferrer">
