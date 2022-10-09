@@ -7,30 +7,16 @@ import {
   Routes,
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
-import nacl from 'tweetnacl';
-import { applicationCommandAutocompleteHandler, applicationCommandHandler, restClient } from '../../../utils/discord';
-
-function verifyKey(req: NextApiRequest): boolean {
-  const signature = req.headers['x-signature-ed25519'] as string;
-  const timestamp = req.headers['x-signature-timestamp'] as string;
-  const rawBody = JSON.stringify(req.body);
-
-  if (!signature || !timestamp) {
-    return false;
-  }
-
-  return nacl.sign.detached.verify(
-    Buffer.from(timestamp + rawBody),
-    Buffer.from(signature, 'hex'),
-    Buffer.from(process.env.DISCORD_APP_PUBLIC_KEY!, 'hex'),
-  );
-}
-
-type ResponseData = string | APIInteractionResponse;
+import {
+  applicationCommandAutocompleteHandler,
+  applicationCommandHandler,
+  restClient,
+  verifyKey,
+} from '../../../utils/discord';
 
 export default async function discordInteractionsHandler(
   req: NextApiRequest,
-  res: NextApiResponse<ResponseData>,
+  res: NextApiResponse<string | APIInteractionResponse>,
 ): Promise<void> {
   if (req.method !== 'POST') {
     return res.status(405).send('Method not allowed');
@@ -70,7 +56,7 @@ export default async function discordInteractionsHandler(
       flags: MessageFlags.Ephemeral,
     };
     if (res.writableEnded) {
-      await restClient.post(Routes.webhook(process.env.DISCORD_APP_ID!, interaction.token), {
+      await restClient.post(Routes.webhook(interaction.application_id, interaction.token), {
         body: errorMessageBody,
       });
     } else {
