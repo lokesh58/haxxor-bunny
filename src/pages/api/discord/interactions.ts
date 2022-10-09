@@ -55,7 +55,7 @@ export default async function discordInteractionsHandler(
       content: '🐛 Something went wrong, please try again later!',
       flags: MessageFlags.Ephemeral,
     };
-    if (res.writableEnded) {
+    if (res.writableEnded || res.closed) {
       await restClient.post(Routes.webhook(interaction.application_id, interaction.token), {
         body: errorMessageBody,
       });
