@@ -34,37 +34,26 @@ export default async function discordInteractionsHandler(
   }, 2_000);
 
   const interaction = req.body as APIInteraction;
-  try {
-    switch (interaction.type) {
-      case InteractionType.Ping:
-        console.info('Interaction type ping received');
-        return res.send({ type: InteractionResponseType.Pong });
-      case InteractionType.ApplicationCommand:
-        await applicationCommandHandler(res, interaction);
-        break;
-      case InteractionType.ApplicationCommandAutocomplete:
-        await applicationCommandAutocompleteHandler(res, interaction);
-        break;
-      default:
-        console.warn(`Received unhandled interaction type: ${interaction.type}`);
-        return res.send({
-          type: InteractionResponseType.ChannelMessageWithSource,
-          data: {
-            content: "😕 This shouldn't be here...",
-            flags: MessageFlags.Ephemeral,
-          },
-        });
-    }
-  } catch (err) {
-    console.error(err);
-    if (!res.writableEnded) {
+  switch (interaction.type) {
+    case InteractionType.Ping:
+      console.info('Interaction type ping received');
+      res.send({ type: InteractionResponseType.Pong });
+      break;
+    case InteractionType.ApplicationCommand:
+      await applicationCommandHandler(res, interaction);
+      break;
+    case InteractionType.ApplicationCommandAutocomplete:
+      await applicationCommandAutocompleteHandler(res, interaction);
+      break;
+    default:
+      console.warn(`Received unhandled interaction type: ${interaction.type}`);
       res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          content: '🐛 Something went wrong, please try again later!',
+          content: "😕 This shouldn't be here...",
           flags: MessageFlags.Ephemeral,
         },
       });
-    }
+      break;
   }
 }

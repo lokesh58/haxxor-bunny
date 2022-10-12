@@ -4,6 +4,8 @@ import {
   APIApplicationCommandInteraction,
   APIInteractionResponse,
   Awaitable,
+  InteractionResponseType,
+  MessageFlags,
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
 import nacl from 'tweetnacl';
@@ -25,18 +27,31 @@ export function verifyKey(req: NextApiRequest): boolean {
   );
 }
 
-export function applicationCommandHandler(
+export async function applicationCommandHandler(
   res: NextApiResponse<APIInteractionResponse>,
   interaction: APIApplicationCommandInteraction,
-): Awaitable<void> {
-  const {
-    data: { name: cmdName, id: cmdId },
-  } = interaction;
-  const command = commands[cmdName];
-  if (!command) {
-    throw new Error(`Unknown command: (${cmdName}, ${cmdId})`);
+): Promise<void> {
+  try {
+    const {
+      data: { name: cmdName, id: cmdId },
+    } = interaction;
+    const command = commands[cmdName];
+    if (!command) {
+      throw new Error(`Unknown command: (${cmdName}, ${cmdId})`);
+    }
+    await new command.CommandHandlerClass(res, interaction).handle();
+  } catch (err) {
+    console.error(err);
+    if (!res.writableEnded) {
+      res.send({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: {
+          content: '🐛 Something went wrong, please try again later!',
+          flags: MessageFlags.Ephemeral,
+        },
+      });
+    }
   }
-  return new command.CommandHandlerClass(res, interaction).handle();
 }
 
 export function applicationCommandAutocompleteHandler(
