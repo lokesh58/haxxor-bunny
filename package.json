@@ -10,7 +10,9 @@
     "lint:quiet": "next lint --quiet",
     "lint:fix": "next lint --fix",
     "format": "prettier --check .",
-    "format:fix": "prettier --write ."
+    "format:fix": "prettier --write .",
+    "deploy:dev": "DOTENV_CONFIG_PATH=./.env.local ts-node -r dotenv/config ./src/scripts/deploy-dev.ts",
+    "deploy:prod": "DOTENV_CONFIG_PATH=./.env.production.local ts-node -r dotenv/config ./src/scripts/deploy-prod.ts"
   },
   "dependencies": {
     "discord.js": "^14.5.0",
@@ -24,10 +26,12 @@
     "@types/node": "18.8.2",
     "@types/react": "18.0.21",
     "@types/react-dom": "18.0.6",
+    "dotenv": "^16.0.3",
     "eslint": "8.24.0",
     "eslint-config-next": "12.3.1",
     "eslint-config-prettier": "8.5.0",
     "prettier": "2.7.1",
+    "ts-node": "^10.9.1",
     "typescript": "4.8.4"
   }
 }

@@ -37,6 +37,7 @@ type AbstractClassConstructor<T extends abstract new (...args: any) => any> = ne
 
 export default interface HaxxorBunnyCommand {
   data: ApplicationCommandData;
+  ownerOnly?: boolean;
   examples?: [{ command: string; explanation: string }];
   CommandHandlerClass: AbstractClassConstructor<typeof BaseApplicationCommandHandler>;
   CommandAutocompleteHandlerClass?: AbstractClassConstructor<typeof BaseApplicationCommandAutocompleteHandler>;

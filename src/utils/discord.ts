@@ -5,10 +5,13 @@ import {
   APIInteractionResponse,
   InteractionResponseType,
   MessageFlags,
+  REST,
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
 import nacl from 'tweetnacl';
 import commands from '../commands';
+
+export const restClient = new REST().setToken(process.env.DISCORD_BOT_TOKEN!);
 
 export function verifyKey(req: NextApiRequest): boolean {
   const signature = req.headers['x-signature-ed25519'] as string;

@@ -1,7 +1,6 @@
-import HaxxorBunnyCommand from './base';
 import InfoCommand from './info';
 
-const commands: Partial<Record<string, HaxxorBunnyCommand>> = {
+const commands = {
   [InfoCommand.data.name]: InfoCommand,
 };
 
