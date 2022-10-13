@@ -11,7 +11,7 @@ const InfoCommand: HaxxorBunnyCommand = {
   CommandHandlerClass: class InfoCommandHandler extends BaseApplicationCommandHandler {
     public handle(): Awaitable<void> {
       const infos = [`🏠 **Homepage:** ${BotHomepageUrl}`, `🔗 **Invite URL:** ${BotInviteUrl}`];
-      this.sendResponse({
+      this.res.send({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
           embeds: [

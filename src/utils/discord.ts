@@ -3,7 +3,6 @@ import {
   APIApplicationCommandAutocompleteResponse,
   APIApplicationCommandInteraction,
   APIInteractionResponse,
-  Awaitable,
   InteractionResponseType,
   MessageFlags,
 } from 'discord.js';
@@ -42,25 +41,23 @@ export async function applicationCommandHandler(
     await new command.CommandHandlerClass(res, interaction).handle();
   } catch (err) {
     console.error(err);
-    if (!res.writableEnded) {
-      res.send({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: '🐛 Something went wrong, please try again later!',
-          flags: MessageFlags.Ephemeral,
-        },
-      });
-    }
+    res.send({
+      type: InteractionResponseType.ChannelMessageWithSource,
+      data: {
+        content: '🐛 Something went wrong, please try again later!',
+        flags: MessageFlags.Ephemeral,
+      },
+    });
   }
 }
 
-export function applicationCommandAutocompleteHandler(
+export async function applicationCommandAutocompleteHandler(
   res: NextApiResponse<APIApplicationCommandAutocompleteResponse>,
   interaction: APIApplicationCommandAutocompleteInteraction,
-): Awaitable<void> {
+): Promise<void> {
   // TODO: Pick the command and use it's handler
   res.send({
-    type: 8,
+    type: InteractionResponseType.ApplicationCommandAutocompleteResult,
     data: {
       choices: [
         {
