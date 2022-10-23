@@ -13,10 +13,9 @@ import nacl from 'tweetnacl';
 import commands from '../commands';
 import HaxxorBunnyError from '../error/HaxxorBunnyError';
 import UnexpectedError from '../error/UnexpectedError';
+import { BotName } from './constants';
 
 export const restClient = new REST().setToken(process.env.DISCORD_BOT_TOKEN!);
-
-export const BotOwnerIds = process.env.DISCORD_BOT_OWNER_IDS?.split(',') ?? [];
 
 export function verifyKey(req: NextApiRequest): boolean {
   const signature = req.headers['x-signature-ed25519'] as string;
@@ -47,6 +46,17 @@ export async function applicationCommandHandler(
       throw new HaxxorBunnyError(`Unknown command (${cmdName}, ${cmdId})`);
     }
     const user = interaction.user ?? interaction.member!.user;
+    if (command.ownerOnly) {
+      const botOwners = process.env.DISCORD_BOT_OWNER_IDS!.split(',');
+      if (!botOwners.includes(user.id)) {
+        console.warn(
+          `User (${user.username}#${user.discriminator}, ${user.id}) tried using owner only command (${cmdName}, ${cmdId})`,
+        );
+        throw new HaxxorBunnyError(`⛔ You need to be a ${BotName} admin to use this command`, {
+          userDisplayable: true,
+        });
+      }
+    }
     console.info(
       `Executing command (${cmdName}, ${cmdId}) by request of (${user.username}#${user.discriminator}, ${user.id})`,
     );
@@ -55,7 +65,7 @@ export async function applicationCommandHandler(
     const err = e instanceof HaxxorBunnyError ? e : new UnexpectedError(e);
     console.error(err);
     const respData = {
-      content: '🐛 Something went wrong, please try again later!',
+      content: err.userDisplayable ? err.message : '🐛 Something went wrong, please try again later!',
       flags: MessageFlags.Ephemeral,
     };
     if (res.writableEnded) {
@@ -84,7 +94,7 @@ export async function applicationCommandAutocompleteHandler(
       throw new HaxxorBunnyError(`Unknown command (${cmdName}, ${cmdId})`);
     }
     if (!command.CommandAutocompleteHandler) {
-      throw new HaxxorBunnyError(`Does not support autocomplete for command (${cmdName}, ${cmdId})`);
+      throw new HaxxorBunnyError(`Autocomplete not supported for command (${cmdName}, ${cmdId})`);
     }
     const user = interaction.user ?? interaction.member!.user;
     console.info(
