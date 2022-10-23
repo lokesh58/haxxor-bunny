@@ -92,6 +92,6 @@ export default interface HaxxorBunnyCommand {
   data: ApplicationCommandData;
   ownerOnly?: boolean;
   examples?: [{ command: string; explanation: string }];
-  CommandHandlerClass: Constructor<typeof BaseApplicationCommandHandler>;
-  CommandAutocompleteHandlerClass?: Constructor<typeof BaseApplicationCommandAutocompleteHandler>;
+  CommandHandler: Constructor<typeof BaseApplicationCommandHandler>;
+  CommandAutocompleteHandler?: Constructor<typeof BaseApplicationCommandAutocompleteHandler>;
 }

@@ -8,7 +8,7 @@ const InfoCommand: HaxxorBunnyCommand = {
     description: 'Get some info about me',
     type: ApplicationCommandType.ChatInput,
   },
-  CommandHandlerClass: class InfoCommandHandler extends BaseApplicationCommandHandler {
+  CommandHandler: class InfoCommandHandler extends BaseApplicationCommandHandler {
     public async handle(): Promise<void> {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,

@@ -44,13 +44,13 @@ export async function applicationCommandHandler(
     } = interaction;
     const command = commands[cmdName];
     if (!command) {
-      throw new HaxxorBunnyError(`Unknown command: (${cmdName}, ${cmdId})`);
+      throw new HaxxorBunnyError(`Unknown command (${cmdName}, ${cmdId})`);
     }
     const user = interaction.user ?? interaction.member!.user;
     console.info(
       `Executing command (${cmdName}, ${cmdId}) by request of (${user.username}#${user.discriminator}, ${user.id})`,
     );
-    await new command.CommandHandlerClass(res, interaction).handle();
+    await new command.CommandHandler(res, interaction).handle();
   } catch (e) {
     const err = e instanceof HaxxorBunnyError ? e : new UnexpectedError(e);
     console.error(err);
@@ -75,16 +75,24 @@ export async function applicationCommandAutocompleteHandler(
   res: NextApiResponse<APIApplicationCommandAutocompleteResponse>,
   interaction: APIApplicationCommandAutocompleteInteraction,
 ): Promise<void> {
-  // TODO: Pick the command and use it's handler
-  res.send({
-    type: InteractionResponseType.ApplicationCommandAutocompleteResult,
-    data: {
-      choices: [
-        {
-          name: 'Test',
-          value: 'test',
-        },
-      ],
-    },
-  });
+  try {
+    const {
+      data: { name: cmdName, id: cmdId },
+    } = interaction;
+    const command = commands[cmdName];
+    if (!command) {
+      throw new HaxxorBunnyError(`Unknown command (${cmdName}, ${cmdId})`);
+    }
+    if (!command.CommandAutocompleteHandler) {
+      throw new HaxxorBunnyError(`Does not support autocomplete for command (${cmdName}, ${cmdId})`);
+    }
+    const user = interaction.user ?? interaction.member!.user;
+    console.info(
+      `Executing autocomplete for command (${cmdName}, ${cmdId}) by request of (${user.username}#${user.discriminator}, ${user.id})`,
+    );
+    await new command.CommandAutocompleteHandler(res, interaction).handle();
+  } catch (e) {
+    const err = e instanceof HaxxorBunnyError ? e : new UnexpectedError(e);
+    console.error(err);
+  }
 }
