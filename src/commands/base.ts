@@ -1,16 +1,21 @@
 import {
   APIApplicationCommandAutocompleteInteraction,
   APIApplicationCommandAutocompleteResponse,
-  APIApplicationCommandInteraction,
+  APIApplicationCommandInteractionDataBasicOption,
+  APIApplicationCommandInteractionDataOption,
+  APIApplicationCommandInteractionDataSubcommandOption,
+  APIChatInputApplicationCommandInteraction,
   APIInteraction,
   APIInteractionResponse,
   ApplicationCommandData,
+  ApplicationCommandOptionType,
   RESTGetAPIInteractionOriginalResponseResult,
   RESTPatchAPIInteractionOriginalResponseJSONBody,
   RESTPatchAPIInteractionOriginalResponseResult,
   Routes,
 } from 'discord.js';
 import { NextApiResponse } from 'next';
+import { ZodError, ZodObject, ZodRawShape } from 'zod';
 import HaxxorBunnyError from '../error/HaxxorBunnyError';
 import { restClient } from '../utils/discord';
 
@@ -57,10 +62,34 @@ abstract class BaseInteractionHandler<R extends APIInteractionResponse, I extend
   }
 }
 
-export abstract class BaseApplicationCommandHandler extends BaseInteractionHandler<
+export abstract class BaseChatInputApplicationCommandHandler extends BaseInteractionHandler<
   APIInteractionResponse,
-  APIApplicationCommandInteraction
+  APIChatInputApplicationCommandInteraction
 > {
+  protected getSubcommand(): APIApplicationCommandInteractionDataSubcommandOption | undefined {
+    return this.interaction.data.options?.find((o) => o.type === ApplicationCommandOptionType.Subcommand) as any;
+  }
+
+  protected parseOptions<T extends ZodRawShape>(
+    rawOptions: APIApplicationCommandInteractionDataOption[],
+    parser: ZodObject<T>,
+  ): ReturnType<ZodObject<T>['parse']> {
+    const rawBasicOptions = rawOptions.filter(
+      (o) => ![ApplicationCommandOptionType.Subcommand, ApplicationCommandOptionType.SubcommandGroup].includes(o.type),
+    ) as APIApplicationCommandInteractionDataBasicOption[];
+    try {
+      return parser.parse(rawBasicOptions.reduce((oo, o) => ({ ...oo, [o.name]: o.value }), {}));
+    } catch (err) {
+      if (err instanceof ZodError) {
+        const invalidArgs = [...new Set(err.errors.map((e) => e.path).reduce((s, o) => [...s, ...o], [])).values()];
+        throw new HaxxorBunnyError(`❌ Invalid value for argument(s): \`${invalidArgs.join('`, `')}\``, {
+          userDisplayable: true,
+        });
+      }
+      throw err;
+    }
+  }
+
   protected async getOriginalResponse(): Promise<RESTGetAPIInteractionOriginalResponseResult> {
     if (!this.responded) {
       throw new HaxxorBunnyError('Interaction not replied');
@@ -98,6 +127,6 @@ export default interface HaxxorBunnyCommand {
   data: ApplicationCommandData;
   ownerOnly?: boolean;
   examples?: [{ command: string; explanation: string }];
-  CommandHandler: Constructor<typeof BaseApplicationCommandHandler>;
+  CommandHandler: Constructor<typeof BaseChatInputApplicationCommandHandler>;
   CommandAutocompleteHandler?: Constructor<typeof BaseApplicationCommandAutocompleteHandler>;
 }

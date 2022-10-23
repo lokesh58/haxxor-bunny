@@ -1,6 +1,6 @@
 import { ApplicationCommandType, InteractionResponseType, SnowflakeUtil } from 'discord.js';
 import { BotHomepageUrl, BotInviteUrl, BotName } from '../utils/constants';
-import HaxxorBunnyCommand, { BaseApplicationCommandHandler } from './base';
+import HaxxorBunnyCommand, { BaseChatInputApplicationCommandHandler } from './base';
 
 const InfoCommand: HaxxorBunnyCommand = {
   data: {
@@ -8,7 +8,7 @@ const InfoCommand: HaxxorBunnyCommand = {
     name: 'info',
     description: 'Get some info about me',
   },
-  CommandHandler: class InfoCommandHandler extends BaseApplicationCommandHandler {
+  CommandHandler: class InfoCommandHandler extends BaseChatInputApplicationCommandHandler {
     public async handle(): Promise<void> {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,

@@ -1,5 +1,8 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
-import HaxxorBunnyCommand, { BaseApplicationCommandAutocompleteHandler, BaseApplicationCommandHandler } from './base';
+import HaxxorBunnyCommand, {
+  BaseApplicationCommandAutocompleteHandler,
+  BaseChatInputApplicationCommandHandler,
+} from './base';
 
 const CharactersCommand: HaxxorBunnyCommand = {
   data: {
@@ -16,7 +19,7 @@ const CharactersCommand: HaxxorBunnyCommand = {
       },
     ],
   },
-  CommandHandler: class CharactersCommandHandler extends BaseApplicationCommandHandler {
+  CommandHandler: class CharactersCommandHandler extends BaseChatInputApplicationCommandHandler {
     public handle(): Promise<void> {
       return this.respond({
         type: InteractionResponseType.ChannelMessageWithSource,

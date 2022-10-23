@@ -21,7 +21,8 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "sharp": "^0.31.1",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "zod": "^3.19.1"
   },
   "devDependencies": {
     "@types/node": "18.8.2",

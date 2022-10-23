@@ -1,6 +1,9 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
 import { AugmentCoreRanks, ValkyrieRanks } from '../utils/hi3';
-import HaxxorBunnyCommand, { BaseApplicationCommandAutocompleteHandler, BaseApplicationCommandHandler } from './base';
+import HaxxorBunnyCommand, {
+  BaseApplicationCommandAutocompleteHandler,
+  BaseChatInputApplicationCommandHandler,
+} from './base';
 
 const MyValkyriesCommand: HaxxorBunnyCommand = {
   data: {
@@ -75,7 +78,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
       },
     ],
   },
-  CommandHandler: class MyValkyriesCommandHandler extends BaseApplicationCommandHandler {
+  CommandHandler: class MyValkyriesCommandHandler extends BaseChatInputApplicationCommandHandler {
     public handle(): Promise<void> {
       return this.respond({
         type: InteractionResponseType.ChannelMessageWithSource,

@@ -1,5 +1,15 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
-import HaxxorBunnyCommand, { BaseApplicationCommandAutocompleteHandler, BaseApplicationCommandHandler } from './base';
+import {
+  APIApplicationCommandInteractionDataSubcommandOption,
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  InteractionResponseType,
+} from 'discord.js';
+import { z } from 'zod';
+import { SingleEmojiRegex, unknownTypeResp } from '../utils/discord';
+import HaxxorBunnyCommand, {
+  BaseApplicationCommandAutocompleteHandler,
+  BaseChatInputApplicationCommandHandler,
+} from './base';
 
 const ManageCharactersCommand: HaxxorBunnyCommand = {
   data: {
@@ -69,12 +79,65 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
     ],
   },
   ownerOnly: true,
-  CommandHandler: class ManageCharactersCommandHandler extends BaseApplicationCommandHandler {
+  CommandHandler: class ManageCharactersCommandHandler extends BaseChatInputApplicationCommandHandler {
     public handle(): Promise<void> {
+      const subcommand = this.getSubcommand();
+      switch (subcommand?.name) {
+        case 'create':
+          return this.create(subcommand);
+        case 'update':
+          return this.update(subcommand);
+        case 'delete':
+          return this.delete(subcommand);
+        default:
+          return this.respond(unknownTypeResp);
+      }
+    }
+
+    private async create(subcommand: APIApplicationCommandInteractionDataSubcommandOption): Promise<void> {
+      const args = this.parseOptions(
+        subcommand.options ?? [],
+        z.object({
+          name: z.string(),
+          emoji: z.optional(z.string().regex(SingleEmojiRegex)),
+        }),
+      );
       return this.respond({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          content: '🚧 Work in Progress',
+          content: JSON.stringify(args),
+        },
+      });
+    }
+
+    private async update(subcommand: APIApplicationCommandInteractionDataSubcommandOption): Promise<void> {
+      const args = this.parseOptions(
+        subcommand.options ?? [],
+        z.object({
+          character: z.string(),
+          emoji: z.optional(z.string().regex(SingleEmojiRegex)),
+        }),
+      );
+      return this.respond({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: {
+          content: JSON.stringify(args),
+        },
+      });
+    }
+
+    private async delete(subcommand: APIApplicationCommandInteractionDataSubcommandOption): Promise<void> {
+      const args = this.parseOptions(
+        subcommand.options ?? [],
+        z.object({
+          character: z.string(),
+          force: z.optional(z.boolean()),
+        }),
+      );
+      return this.respond({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: {
+          content: JSON.stringify(args),
         },
       });
     }

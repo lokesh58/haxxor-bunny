@@ -1,13 +1,19 @@
 import {
+  APIChatInputApplicationCommandInteraction,
   APIInteraction,
   APIInteractionResponse,
+  ApplicationCommandType,
   Awaitable,
   InteractionResponseType,
   InteractionType,
-  MessageFlags,
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { applicationCommandAutocompleteHandler, applicationCommandHandler, verifyKey } from '../../../utils/discord';
+import {
+  applicationCommandAutocompleteHandler,
+  chatInputApplicationCommandHandler,
+  unknownTypeResp,
+  verifyKey,
+} from '../../../utils/discord';
 
 export default function discordInteractionsHandler(
   req: NextApiRequest,
@@ -28,17 +34,16 @@ export default function discordInteractionsHandler(
       console.info('Interaction type ping received');
       return res.send({ type: InteractionResponseType.Pong });
     case InteractionType.ApplicationCommand:
-      return applicationCommandHandler(res, interaction);
+      switch (interaction.data.type) {
+        case ApplicationCommandType.ChatInput:
+          return chatInputApplicationCommandHandler(res, interaction as APIChatInputApplicationCommandInteraction);
+        default:
+          return res.send(unknownTypeResp);
+      }
     case InteractionType.ApplicationCommandAutocomplete:
       return applicationCommandAutocompleteHandler(res, interaction);
     default:
       console.warn(`Received unhandled interaction type: ${interaction.type}`);
-      return res.send({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: "😕 This shouldn't be here...",
-          flags: MessageFlags.Ephemeral,
-        },
-      });
+      return res.send(unknownTypeResp);
   }
 }

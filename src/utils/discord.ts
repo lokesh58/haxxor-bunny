@@ -1,7 +1,7 @@
 import {
   APIApplicationCommandAutocompleteInteraction,
   APIApplicationCommandAutocompleteResponse,
-  APIApplicationCommandInteraction,
+  APIChatInputApplicationCommandInteraction,
   APIInteractionResponse,
   InteractionResponseType,
   MessageFlags,
@@ -33,9 +33,19 @@ export function verifyKey(req: NextApiRequest): boolean {
   );
 }
 
-export async function applicationCommandHandler(
+export const unknownTypeResp = {
+  type: InteractionResponseType.ChannelMessageWithSource,
+  data: {
+    content: "😕 This shouldn't be here...",
+    flags: MessageFlags.Ephemeral,
+  },
+} as const;
+
+export const SingleEmojiRegex = /^((<a?:\w+:\d+>)|(\p{Extended_Pictographic}))$/gu;
+
+export async function chatInputApplicationCommandHandler(
   res: NextApiResponse<APIInteractionResponse>,
-  interaction: APIApplicationCommandInteraction,
+  interaction: APIChatInputApplicationCommandInteraction,
 ): Promise<void> {
   try {
     const {
