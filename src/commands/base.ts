@@ -62,6 +62,9 @@ export abstract class BaseApplicationCommandHandler extends BaseInteractionHandl
   APIApplicationCommandInteraction
 > {
   protected async getOriginalResponse(): Promise<RESTGetAPIInteractionOriginalResponseResult> {
+    if (!this.responded) {
+      throw new HaxxorBunnyError('Interaction not replied');
+    }
     const resp = await restClient.get(Routes.webhookMessage(this.interaction.application_id, this.interaction.token));
     return resp as RESTGetAPIInteractionOriginalResponseResult;
   }
@@ -69,6 +72,9 @@ export abstract class BaseApplicationCommandHandler extends BaseInteractionHandl
   protected async editOriginalResponse(
     body: RESTPatchAPIInteractionOriginalResponseJSONBody,
   ): Promise<RESTPatchAPIInteractionOriginalResponseResult> {
+    if (!this.responded) {
+      throw new HaxxorBunnyError('Interaction not replied');
+    }
     const resp = await restClient.patch(
       Routes.webhookMessage(this.interaction.application_id, this.interaction.token),
       {

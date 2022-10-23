@@ -4,9 +4,9 @@ import HaxxorBunnyCommand, { BaseApplicationCommandHandler } from './base';
 
 const InfoCommand: HaxxorBunnyCommand = {
   data: {
+    type: ApplicationCommandType.ChatInput,
     name: 'info',
     description: 'Get some info about me',
-    type: ApplicationCommandType.ChatInput,
   },
   CommandHandler: class InfoCommandHandler extends BaseApplicationCommandHandler {
     public async handle(): Promise<void> {
