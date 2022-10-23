@@ -15,7 +15,6 @@ async function deployDev() {
 
 function main() {
   deployDev();
-  console.log(process.env.DISCORD_BOT_TOKEN);
 }
 
 main();
