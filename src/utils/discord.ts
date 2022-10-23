@@ -6,10 +6,13 @@ import {
   InteractionResponseType,
   MessageFlags,
   REST,
+  Routes,
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
 import nacl from 'tweetnacl';
 import commands from '../commands';
+import HaxxorBunnyError from '../error/HaxxorBunnyError';
+import UnexpectedError from '../error/UnexpectedError';
 
 export const restClient = new REST().setToken(process.env.DISCORD_BOT_TOKEN!);
 
@@ -44,15 +47,23 @@ export async function applicationCommandHandler(
       throw new Error(`Unknown command: (${cmdName}, ${cmdId})`);
     }
     await new command.CommandHandlerClass(res, interaction).handle();
-  } catch (err) {
+  } catch (e) {
+    const err = e instanceof HaxxorBunnyError ? e : new UnexpectedError(e);
     console.error(err);
-    res.send({
-      type: InteractionResponseType.ChannelMessageWithSource,
-      data: {
-        content: '🐛 Something went wrong, please try again later!',
-        flags: MessageFlags.Ephemeral,
-      },
-    });
+    const respData = {
+      content: '🐛 Something went wrong, please try again later!',
+      flags: MessageFlags.Ephemeral,
+    };
+    if (res.writableEnded) {
+      restClient
+        .post(Routes.webhook(interaction.application_id, interaction.token), { body: respData })
+        .catch(console.error);
+    } else {
+      res.send({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: respData,
+      });
+    }
   }
 }
 
