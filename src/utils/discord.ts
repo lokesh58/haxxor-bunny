@@ -13,6 +13,8 @@ import commands from '../commands';
 
 export const restClient = new REST().setToken(process.env.DISCORD_BOT_TOKEN!);
 
+export const BotOwnerIds = process.env.DISCORD_BOT_OWNER_IDS!.split(',');
+
 export function verifyKey(req: NextApiRequest): boolean {
   const signature = req.headers['x-signature-ed25519'] as string;
   const timestamp = req.headers['x-signature-timestamp'] as string;
