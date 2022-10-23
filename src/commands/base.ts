@@ -84,7 +84,7 @@ export abstract class BaseApplicationCommandAutocompleteHandler extends BaseInte
   APIApplicationCommandAutocompleteInteraction
 > {}
 
-type AbstractClassConstructor<T extends abstract new (...args: any) => any> = new (
+type Constructor<T extends abstract new (...args: any) => any> = new (
   ...args: ConstructorParameters<T>
 ) => InstanceType<T>;
 
@@ -92,6 +92,6 @@ export default interface HaxxorBunnyCommand {
   data: ApplicationCommandData;
   ownerOnly?: boolean;
   examples?: [{ command: string; explanation: string }];
-  CommandHandlerClass: AbstractClassConstructor<typeof BaseApplicationCommandHandler>;
-  CommandAutocompleteHandlerClass?: AbstractClassConstructor<typeof BaseApplicationCommandAutocompleteHandler>;
+  CommandHandlerClass: Constructor<typeof BaseApplicationCommandHandler>;
+  CommandAutocompleteHandlerClass?: Constructor<typeof BaseApplicationCommandAutocompleteHandler>;
 }
