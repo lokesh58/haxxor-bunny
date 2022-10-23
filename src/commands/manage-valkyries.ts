@@ -30,7 +30,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
             type: ApplicationCommandOptionType.String,
             name: 'nature',
             description: 'Nature of the valkyrie',
-            choices: ValkyrieNatures.map((n) => ({ name: `${n.emoji} ${n.display}`, value: n.value })),
+            choices: ValkyrieNatures.map((n) => ({ name: n.display, value: n.value })),
             required: true,
           },
           {
