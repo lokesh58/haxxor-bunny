@@ -1,6 +1,6 @@
 export const BotName = 'Haxxor Bunny';
 
-export const BotHomepageUrl = 'https://haxxor-bunny.vercel.app';
+export const BotHomepageUrl = 'https://haxxor-bunny.up.railway.app/';
 
 export const InternalBotInviteUrl = '/invite';
 
