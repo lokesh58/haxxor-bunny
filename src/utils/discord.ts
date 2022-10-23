@@ -44,8 +44,12 @@ export async function applicationCommandHandler(
     } = interaction;
     const command = commands[cmdName];
     if (!command) {
-      throw new Error(`Unknown command: (${cmdName}, ${cmdId})`);
+      throw new HaxxorBunnyError(`Unknown command: (${cmdName}, ${cmdId})`);
     }
+    const user = interaction.user ?? interaction.member!.user;
+    console.info(
+      `Executing command (${cmdName}, ${cmdId}) by request of (${user.username}#${user.discriminator}, ${user.id})`,
+    );
     await new command.CommandHandlerClass(res, interaction).handle();
   } catch (e) {
     const err = e instanceof HaxxorBunnyError ? e : new UnexpectedError(e);
