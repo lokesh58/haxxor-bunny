@@ -1,7 +1,7 @@
-import { model, Schema } from 'mongoose';
+import { Model, model, models, Schema } from 'mongoose';
 import { ValkyrieBaseRanks, ValkyrieNatures } from '../../utils/hi3';
 
-export interface Valkyrie {
+export interface IValkyrie {
   character: Schema.Types.ObjectId;
   name: string;
   nature: typeof ValkyrieNatures[number]['value'];
@@ -11,7 +11,7 @@ export interface Valkyrie {
   augEmoji?: string;
 }
 
-const valkSchema = new Schema<Valkyrie>({
+const valkSchema = new Schema<IValkyrie>({
   character: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -46,5 +46,6 @@ const valkSchema = new Schema<Valkyrie>({
 
 export const name = 'hi3-valkyrie';
 export const collection = 'hi3-valkyries';
+const valkModel: Model<IValkyrie> = models[name] || model(name, valkSchema, collection);
 
-export default model(name, valkSchema, collection);
+export default valkModel;

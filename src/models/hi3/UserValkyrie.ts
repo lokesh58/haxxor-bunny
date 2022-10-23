@@ -1,14 +1,14 @@
-import { model, Schema } from 'mongoose';
+import { Model, model, models, Schema } from 'mongoose';
 import { AugmentCoreRanks, ValkyrieRanks } from '../../utils/hi3';
 
-export interface UserValkyrie {
+export interface IUserValkyrie {
   userId: string;
   valk: Schema.Types.ObjectId;
   rank: typeof ValkyrieRanks[number];
   coreRank?: typeof AugmentCoreRanks[number];
 }
 
-const userValkSchema = new Schema<UserValkyrie>({
+const userValkSchema = new Schema<IUserValkyrie>({
   userId: {
     type: String,
     required: true,
@@ -31,5 +31,6 @@ const userValkSchema = new Schema<UserValkyrie>({
 
 export const name = 'hi3-user-valkyrie';
 export const collection = 'hi3-user-valkyries';
+const userValkModel: Model<IUserValkyrie> = models[name] || model(name, userValkSchema, collection);
 
-export default model(name, userValkSchema, collection);
+export default userValkModel;

@@ -2,10 +2,13 @@ import {
   APIApplicationCommandInteractionDataSubcommandOption,
   ApplicationCommandOptionType,
   ApplicationCommandType,
+  Colors,
   InteractionResponseType,
 } from 'discord.js';
 import { z } from 'zod';
+import Character from '../models/hi3/Character';
 import { SingleEmojiRegex, unknownTypeResp } from '../utils/discord';
+import { dbConnect } from '../utils/mongo';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -102,11 +105,31 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
           emoji: z.optional(z.string().regex(SingleEmojiRegex)),
         }),
       );
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: JSON.stringify(args),
-        },
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+      });
+      await dbConnect();
+      if (await Character.findOne({ name: args.name })) {
+        await this.editOriginalResponse({
+          embeds: [
+            {
+              title: 'Create Character',
+              description: `❌ Character with name \`${args.name}\` already exists`,
+              color: Colors.Red,
+            },
+          ],
+        });
+        return;
+      }
+      await new Character({ ...args }).save();
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'Create Character',
+            description: `✅ Character \`${args.name}\` ${args.emoji ?? ''} created successfully`,
+            color: Colors.Green,
+          },
+        ],
       });
     }
 
