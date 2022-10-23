@@ -8,7 +8,7 @@ export interface UserValkyrie {
   coreRank?: typeof AugmentCoreRanks[number];
 }
 
-const userValkyrieSchema = new Schema<UserValkyrie>({
+const userValkSchema = new Schema<UserValkyrie>({
   userId: {
     type: String,
     required: true,
@@ -32,4 +32,4 @@ const userValkyrieSchema = new Schema<UserValkyrie>({
 export const name = 'hi3-user-valkyrie';
 export const collection = 'hi3-user-valkyries';
 
-export default model(name, userValkyrieSchema, collection);
+export default model(name, userValkSchema, collection);
