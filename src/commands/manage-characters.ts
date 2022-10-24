@@ -1,10 +1,5 @@
-import {
-  APIApplicationCommandInteractionDataSubcommandOption,
-  ApplicationCommandOptionType,
-  ApplicationCommandType,
-  Colors,
-  InteractionResponseType,
-} from 'discord.js';
+import { ApplicationCommandOptionType, ApplicationCommandType, Colors, InteractionResponseType } from 'discord.js';
+import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import Character from '../models/hi3/Character';
 import { SingleEmojiRegex, unknownTypeResp } from '../utils/discord';
@@ -87,34 +82,33 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
       const subcommand = this.getSubcommand();
       switch (subcommand?.name) {
         case 'create':
-          return this.create(subcommand);
+          return this.create();
         case 'update':
-          return this.update(subcommand);
+          return this.update();
         case 'delete':
-          return this.delete(subcommand);
+          return this.delete();
         default:
           return this.respond(unknownTypeResp);
       }
     }
 
-    private async create(subcommand: APIApplicationCommandInteractionDataSubcommandOption): Promise<void> {
-      const args = this.parseOptions(
-        subcommand.options ?? [],
+    private async create(): Promise<void> {
+      const args = this.getParsedArguments(
         z.object({
           name: z.string(),
-          emoji: z.optional(z.string().regex(SingleEmojiRegex)),
+          emoji: z.string().regex(SingleEmojiRegex).optional(),
         }),
       );
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
       await dbConnect();
-      if (await Character.findOne({ name: args.name })) {
+      if (await Character.exists({ name: { $regex: new RegExp(`^${args.name}$`, 'i') } })) {
         await this.editOriginalResponse({
           embeds: [
             {
               title: 'Create Character',
-              description: `❌ Character with name \`${args.name}\` already exists`,
+              description: `❌ Character \`${args.name}\` already exists`,
               color: Colors.Red,
             },
           ],
@@ -133,12 +127,14 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
       });
     }
 
-    private async update(subcommand: APIApplicationCommandInteractionDataSubcommandOption): Promise<void> {
-      const args = this.parseOptions(
-        subcommand.options ?? [],
+    private async update(): Promise<void> {
+      const args = this.getParsedArguments(
         z.object({
-          character: z.string(),
-          emoji: z.optional(z.string().regex(SingleEmojiRegex)),
+          character: z
+            .string()
+            .refine((v) => isValidObjectId(v))
+            .transform((v) => new Types.ObjectId(v)),
+          emoji: z.string().regex(SingleEmojiRegex).optional(),
         }),
       );
       return this.respond({
@@ -149,12 +145,14 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
       });
     }
 
-    private async delete(subcommand: APIApplicationCommandInteractionDataSubcommandOption): Promise<void> {
-      const args = this.parseOptions(
-        subcommand.options ?? [],
+    private async delete(): Promise<void> {
+      const args = this.getParsedArguments(
         z.object({
-          character: z.string(),
-          force: z.optional(z.boolean()),
+          character: z
+            .string()
+            .refine((v) => isValidObjectId(v))
+            .transform((v) => new Types.ObjectId(v)),
+          force: z.boolean().optional(),
         }),
       );
       return this.respond({
@@ -166,11 +164,14 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
     }
   },
   CommandAutocompleteHandler: class ManageCharactersCommandAutocompleteHandler extends BaseApplicationCommandAutocompleteHandler {
-    public handle(): Promise<void> {
+    public async handle(): Promise<void> {
+      const { value } = this.getFocusedOption();
+      await dbConnect();
+      const characters = await Character.find({ name: { $regex: new RegExp(value.toString(), 'i') } }).limit(25);
       return this.respond({
         type: InteractionResponseType.ApplicationCommandAutocompleteResult,
         data: {
-          choices: [{ name: 'Work in Progress', value: 'wip' }],
+          choices: characters.map((c) => ({ name: c.name, value: c._id.toString() })),
         },
       });
     }

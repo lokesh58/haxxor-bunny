@@ -2,7 +2,10 @@ import {
   APIApplicationCommandAutocompleteInteraction,
   APIApplicationCommandAutocompleteResponse,
   APIApplicationCommandInteractionDataBasicOption,
+  APIApplicationCommandInteractionDataIntegerOption,
+  APIApplicationCommandInteractionDataNumberOption,
   APIApplicationCommandInteractionDataOption,
+  APIApplicationCommandInteractionDataStringOption,
   APIApplicationCommandInteractionDataSubcommandOption,
   APIChatInputApplicationCommandInteraction,
   APIInteraction,
@@ -62,21 +65,45 @@ abstract class BaseInteractionHandler<R extends APIInteractionResponse, I extend
   }
 }
 
-export abstract class BaseChatInputApplicationCommandHandler extends BaseInteractionHandler<
-  APIInteractionResponse,
-  APIChatInputApplicationCommandInteraction
-> {
-  protected getSubcommand(): APIApplicationCommandInteractionDataSubcommandOption | undefined {
-    return this.interaction.data.options?.find((o) => o.type === ApplicationCommandOptionType.Subcommand) as any;
+type APIApplicationCommandInteractionDataAutocompleteSupportedOption =
+  | APIApplicationCommandInteractionDataStringOption
+  | APIApplicationCommandInteractionDataIntegerOption
+  | APIApplicationCommandInteractionDataNumberOption;
+
+class SlashCommandDataOptionUtils {
+  public static isSubcommandOption(
+    o: APIApplicationCommandInteractionDataOption,
+  ): o is APIApplicationCommandInteractionDataSubcommandOption {
+    return o.type === ApplicationCommandOptionType.Subcommand;
   }
 
-  protected parseOptions<T extends ZodRawShape>(
+  public static isBasicOption(
+    o: APIApplicationCommandInteractionDataOption,
+  ): o is APIApplicationCommandInteractionDataBasicOption {
+    return ![ApplicationCommandOptionType.Subcommand, ApplicationCommandOptionType.SubcommandGroup].includes(o.type);
+  }
+
+  public static isPossibleAutocompleteOption(
+    o: APIApplicationCommandInteractionDataOption,
+  ): o is APIApplicationCommandInteractionDataAutocompleteSupportedOption {
+    return [
+      ApplicationCommandOptionType.String,
+      ApplicationCommandOptionType.Integer,
+      ApplicationCommandOptionType.Number,
+    ].includes(o.type);
+  }
+
+  public static isFocused(
+    o: APIApplicationCommandInteractionDataOption,
+  ): o is APIApplicationCommandInteractionDataAutocompleteSupportedOption & { focused: true } {
+    return SlashCommandDataOptionUtils.isPossibleAutocompleteOption(o) && !!o.focused;
+  }
+
+  public static parseOptions<T extends ZodRawShape>(
     rawOptions: APIApplicationCommandInteractionDataOption[],
     parser: ZodObject<T>,
   ): ReturnType<ZodObject<T>['parse']> {
-    const rawBasicOptions = rawOptions.filter(
-      (o) => ![ApplicationCommandOptionType.Subcommand, ApplicationCommandOptionType.SubcommandGroup].includes(o.type),
-    ) as APIApplicationCommandInteractionDataBasicOption[];
+    const rawBasicOptions = rawOptions.filter(SlashCommandDataOptionUtils.isBasicOption);
     try {
       return parser.parse(rawBasicOptions.reduce((oo, o) => ({ ...oo, [o.name]: o.value }), {}));
     } catch (err) {
@@ -89,10 +116,30 @@ export abstract class BaseChatInputApplicationCommandHandler extends BaseInterac
       throw err;
     }
   }
+}
+
+abstract class BaseSlashCommandHandler<
+  R extends APIInteractionResponse,
+  I extends APIChatInputApplicationCommandInteraction | APIApplicationCommandAutocompleteInteraction,
+> extends BaseInteractionHandler<R, I> {
+  protected getSubcommand(): APIApplicationCommandInteractionDataSubcommandOption | undefined {
+    return this.interaction.data.options?.find(SlashCommandDataOptionUtils.isSubcommandOption);
+  }
+}
+
+export abstract class BaseChatInputApplicationCommandHandler extends BaseSlashCommandHandler<
+  APIInteractionResponse,
+  APIChatInputApplicationCommandInteraction
+> {
+  protected getParsedArguments<T extends ZodRawShape>(parser: ZodObject<T>): ReturnType<ZodObject<T>['parse']> {
+    const subcommand = this.getSubcommand();
+    const options = subcommand?.options ?? this.interaction.data.options ?? [];
+    return SlashCommandDataOptionUtils.parseOptions(options, parser);
+  }
 
   protected async getOriginalResponse(): Promise<RESTGetAPIInteractionOriginalResponseResult> {
     if (!this.responded) {
-      throw new HaxxorBunnyError('Interaction not replied');
+      throw new HaxxorBunnyError('Interaction not responded');
     }
     const resp = await restClient.get(Routes.webhookMessage(this.interaction.application_id, this.interaction.token));
     return resp as RESTGetAPIInteractionOriginalResponseResult;
@@ -102,7 +149,7 @@ export abstract class BaseChatInputApplicationCommandHandler extends BaseInterac
     body: RESTPatchAPIInteractionOriginalResponseJSONBody,
   ): Promise<RESTPatchAPIInteractionOriginalResponseResult> {
     if (!this.responded) {
-      throw new HaxxorBunnyError('Interaction not replied');
+      throw new HaxxorBunnyError('Interaction not responded');
     }
     const resp = await restClient.patch(
       Routes.webhookMessage(this.interaction.application_id, this.interaction.token),
@@ -114,10 +161,16 @@ export abstract class BaseChatInputApplicationCommandHandler extends BaseInterac
   }
 }
 
-export abstract class BaseApplicationCommandAutocompleteHandler extends BaseInteractionHandler<
+export abstract class BaseApplicationCommandAutocompleteHandler extends BaseSlashCommandHandler<
   APIApplicationCommandAutocompleteResponse,
   APIApplicationCommandAutocompleteInteraction
-> {}
+> {
+  protected getFocusedOption() {
+    const subcommand = this.getSubcommand();
+    const options = subcommand?.options ?? this.interaction.data.options ?? [];
+    return options.find(SlashCommandDataOptionUtils.isFocused)!;
+  }
+}
 
 type Constructor<T extends abstract new (...args: any) => any> = new (
   ...args: ConstructorParameters<T>
