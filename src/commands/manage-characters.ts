@@ -1,4 +1,10 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, Colors, InteractionResponseType } from 'discord.js';
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  Colors,
+  InteractionResponseType,
+  MessageFlags,
+} from 'discord.js';
 import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import Character from '../models/hi3/Character';
@@ -120,7 +126,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
         embeds: [
           {
             title: 'Create Character',
-            description: `✅ Character \`${args.name}\` ${args.emoji ?? ''} created successfully`,
+            description: `✅ Character \`${args.name}\` created successfully`,
             color: Colors.Green,
           },
         ],
@@ -137,11 +143,31 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
           emoji: z.string().regex(SingleEmojiRegex).optional(),
         }),
       );
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: JSON.stringify(args),
-        },
+      const { character: charId, ...updateInfo } = args;
+      if (!Object.keys(updateInfo).length) {
+        return this.respond({
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            content: '❓ Nothing to update!',
+            flags: MessageFlags.Ephemeral,
+          },
+        });
+      }
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+      });
+      await dbConnect();
+      const updatedChar = await Character.findByIdAndUpdate(charId, updateInfo);
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'Update Character',
+            description: updatedChar
+              ? `✅ Character \`${updatedChar.name}\` updated successfully`
+              : `❌ The given character doesn't exist`,
+            color: updatedChar ? Colors.Green : Colors.Red,
+          },
+        ],
       });
     }
 
