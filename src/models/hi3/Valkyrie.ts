@@ -46,6 +46,6 @@ const valkSchema = new Schema<IValkyrie>({
 
 export const name = 'hi3-valkyrie';
 export const collection = 'hi3-valkyries';
-const valkModel: Model<IValkyrie> = models[name] || model(name, valkSchema, collection);
+const Valkyrie: Model<IValkyrie> = models[name] || model(name, valkSchema, collection);
 
-export default valkModel;
+export default Valkyrie;

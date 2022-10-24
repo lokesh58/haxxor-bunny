@@ -19,6 +19,6 @@ const charSchema = new Schema<ICharacter>({
 
 export const name = 'hi3-character';
 export const collection = 'hi3-characters';
-const charModel: Model<ICharacter> = models[name] || model(name, charSchema, collection);
+const Character: Model<ICharacter> = models[name] || model(name, charSchema, collection);
 
-export default charModel;
+export default Character;

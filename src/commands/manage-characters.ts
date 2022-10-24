@@ -8,6 +8,7 @@ import {
 import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import Character from '../models/hi3/Character';
+import { deleteCharacter, forceDeleteCharacter } from '../models/hi3/utils';
 import { SingleEmojiRegex, unknownTypeResp } from '../utils/discord';
 import { dbConnect } from '../utils/mongo';
 import HaxxorBunnyCommand, {
@@ -105,28 +106,29 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
           emoji: z.string().regex(SingleEmojiRegex).optional(),
         }),
       );
+      const { name, emoji } = args;
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
       await dbConnect();
-      if (await Character.exists({ name: { $regex: new RegExp(`^${args.name}$`, 'i') } })) {
+      if (await Character.exists({ name: { $regex: new RegExp(`^${name}$`, 'i') } })) {
         await this.editOriginalResponse({
           embeds: [
             {
               title: 'Create Character',
-              description: `❌ Character \`${args.name}\` already exists`,
+              description: `❌ Character \`${name}\` already exists`,
               color: Colors.Red,
             },
           ],
         });
         return;
       }
-      await new Character({ ...args }).save();
+      await new Character(args).save();
       await this.editOriginalResponse({
         embeds: [
           {
             title: 'Create Character',
-            description: `✅ Character \`${args.name}\` created successfully`,
+            description: `✅ Character \`${name}\` created successfully`,
             color: Colors.Green,
           },
         ],
@@ -164,7 +166,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
             title: 'Update Character',
             description: updatedChar
               ? `✅ Character \`${updatedChar.name}\` updated successfully`
-              : `❌ The given character doesn't exist`,
+              : "❌ The given character doesn't exist",
             color: updatedChar ? Colors.Green : Colors.Red,
           },
         ],
@@ -181,11 +183,24 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
           force: z.boolean().optional(),
         }),
       );
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: JSON.stringify(args),
-        },
+      const { character: charId, force = false } = args;
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+      });
+      await dbConnect();
+      const deleteRes = await (force ? forceDeleteCharacter(charId) : deleteCharacter(charId));
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'Delete Character',
+            description: deleteRes
+              ? `✅ Character \`${deleteRes.name}\` deleted successfully`
+              : deleteRes === null
+              ? "❌ The given character doesn't exist"
+              : '⚠️ Valkyries found for this character, aborting delete. Use `force: true` to delete the character along with the valkyries',
+            color: deleteRes ? Colors.Green : deleteRes === null ? Colors.Red : Colors.Yellow,
+          },
+        ],
       });
     }
   },

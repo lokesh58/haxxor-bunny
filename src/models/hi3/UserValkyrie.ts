@@ -3,7 +3,7 @@ import { AugmentCoreRanks, ValkyrieRanks } from '../../utils/hi3';
 
 export interface IUserValkyrie {
   userId: string;
-  valk: Schema.Types.ObjectId;
+  valkyrie: Schema.Types.ObjectId;
   rank: typeof ValkyrieRanks[number];
   coreRank?: typeof AugmentCoreRanks[number];
 }
@@ -13,7 +13,7 @@ const userValkSchema = new Schema<IUserValkyrie>({
     type: String,
     required: true,
   },
-  valk: {
+  valkyrie: {
     type: Schema.Types.ObjectId,
     required: true,
   },
@@ -31,6 +31,6 @@ const userValkSchema = new Schema<IUserValkyrie>({
 
 export const name = 'hi3-user-valkyrie';
 export const collection = 'hi3-user-valkyries';
-const userValkModel: Model<IUserValkyrie> = models[name] || model(name, userValkSchema, collection);
+const UserValkyrie: Model<IUserValkyrie> = models[name] || model(name, userValkSchema, collection);
 
-export default userValkModel;
+export default UserValkyrie;
