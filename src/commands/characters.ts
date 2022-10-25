@@ -1,4 +1,6 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
+import { isValidObjectId } from 'mongoose';
+import { z } from 'zod';
 import { getCharactersByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
@@ -22,10 +24,18 @@ const CharactersCommand: HaxxorBunnyCommand = {
   },
   CommandHandler: class CharactersCommandHandler extends BaseChatInputApplicationCommandHandler {
     public handle(): Promise<void> {
+      const args = this.getParsedArguments(
+        z.object({
+          character: z
+            .string()
+            .refine((v) => isValidObjectId(v), { message: 'Invalid Character ID' })
+            .optional(),
+        }),
+      );
       return this.respond({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          content: '🚧 Work in Progress',
+          content: JSON.stringify(args),
         },
       });
     }

@@ -1,4 +1,6 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
+import { isValidObjectId } from 'mongoose';
+import { z } from 'zod';
 import { getValkyriesByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
@@ -22,10 +24,18 @@ const ValkyriesCommand: HaxxorBunnyCommand = {
   },
   CommandHandler: class ValkyriesCommandHandler extends BaseChatInputApplicationCommandHandler {
     public handle(): Promise<void> {
+      const args = this.getParsedArguments(
+        z.object({
+          valk: z
+            .string()
+            .refine((v) => isValidObjectId(v), { message: 'Invalid Valkyrie ID' })
+            .optional(),
+        }),
+      );
       return this.respond({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          content: '🚧 Work in Progress',
+          content: JSON.stringify(args),
         },
       });
     }

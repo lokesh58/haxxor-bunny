@@ -12,7 +12,7 @@ const UserValkyriesCommand: HaxxorBunnyCommand = {
         type: ApplicationCommandOptionType.User,
         name: 'user',
         description: 'The user whose valkyrie to view',
-        required: false,
+        required: true,
       },
     ],
   },
