@@ -1,8 +1,6 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
-import HaxxorBunnyCommand, {
-  BaseApplicationCommandAutocompleteHandler,
-  BaseChatInputApplicationCommandHandler,
-} from './base';
+import { z } from 'zod';
+import HaxxorBunnyCommand, { BaseChatInputApplicationCommandHandler } from './base';
 
 const UserValkyriesCommand: HaxxorBunnyCommand = {
   data: {
@@ -16,30 +14,19 @@ const UserValkyriesCommand: HaxxorBunnyCommand = {
         description: 'The user whose valkyrie to view',
         required: false,
       },
-      {
-        type: ApplicationCommandOptionType.String,
-        name: 'user-id',
-        description: 'Discord user id of the user',
-        required: false,
-      },
     ],
   },
   CommandHandler: class UserValkyriesCommandHandler extends BaseChatInputApplicationCommandHandler {
     public handle(): Promise<void> {
+      const args = this.getParsedArguments(
+        z.object({
+          user: z.string().regex(/^\d+$/, { message: 'Invalid User ID' }),
+        }),
+      );
       return this.respond({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          content: '🚧 Work in Progress',
-        },
-      });
-    }
-  },
-  CommandAutocompleteHandler: class UserValkyriesCommandAutocompleteHandler extends BaseApplicationCommandAutocompleteHandler {
-    public handle(): Promise<void> {
-      return this.respond({
-        type: InteractionResponseType.ApplicationCommandAutocompleteResult,
-        data: {
-          choices: [{ name: 'Work in Progress', value: 'wip' }],
+          content: JSON.stringify(args),
         },
       });
     }

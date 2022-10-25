@@ -9,7 +9,7 @@ import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import { SingleEmojiRegex, unknownTypeResp } from '../constants/discord';
 import Character from '../models/hi3/Character';
-import { deleteCharacter, forceDeleteCharacter } from '../utils/hi3';
+import { deleteCharacter, forceDeleteCharacter, getCharactersByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -144,7 +144,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
         }),
       );
       const { character: charId, ...updateInfo } = args;
-      if (!Object.keys(updateInfo).length) {
+      if (!Object.values(updateInfo).filter(Boolean).length) {
         return this.respond({
           type: InteractionResponseType.ChannelMessageWithSource,
           data: {
@@ -203,7 +203,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
   CommandAutocompleteHandler: class ManageCharactersCommandAutocompleteHandler extends BaseApplicationCommandAutocompleteHandler {
     public async handle(): Promise<void> {
       const { value } = this.getFocusedOption();
-      const characters = await Character.find({ name: { $regex: new RegExp(value.toString(), 'i') } }).limit(25);
+      const characters = await getCharactersByKeyword(value.toString());
       return this.respond({
         type: InteractionResponseType.ApplicationCommandAutocompleteResult,
         data: {
