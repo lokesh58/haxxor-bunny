@@ -12,7 +12,6 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "deploy:dev": "DOTENV_CONFIG_PATH=./.env.local ts-node -r dotenv/config ./src/scripts/deploy-dev.ts",
-    "deploy:dev:global": "DOTENV_CONFIG_PATH=./.env.local ts-node -r dotenv/config ./src/scripts/deploy-global.ts",
     "deploy:prod": "DOTENV_CONFIG_PATH=./.env.production.script.local ts-node -r dotenv/config ./src/scripts/deploy-global.ts"
   },
   "dependencies": {
