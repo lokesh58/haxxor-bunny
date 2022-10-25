@@ -2,7 +2,7 @@ import { Routes } from 'discord.js';
 import commands from '../commands';
 import { restClient } from '../utils/discord';
 
-async function deployProd() {
+async function deployGlobal() {
   const globalCommandsData = Object.values(commands)
     .filter((cmd) => !cmd.ownerOnly)
     .map((cmd) => cmd.data);
@@ -22,7 +22,7 @@ async function deployProd() {
 }
 
 function main() {
-  deployProd();
+  deployGlobal();
 }
 
 main();
