@@ -10,7 +10,6 @@ import { z } from 'zod';
 import Character from '../models/hi3/Character';
 import { deleteCharacter, forceDeleteCharacter } from '../models/hi3/utils';
 import { SingleEmojiRegex, unknownTypeResp } from '../utils/discord';
-import { dbConnect } from '../utils/mongo';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -110,7 +109,6 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
-      await dbConnect();
       if (await Character.exists({ name: { $regex: new RegExp(`^${name}$`, 'i') } })) {
         await this.editOriginalResponse({
           embeds: [
@@ -158,7 +156,6 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
-      await dbConnect();
       const updatedChar = await Character.findByIdAndUpdate(charId, updateInfo);
       await this.editOriginalResponse({
         embeds: [
@@ -187,7 +184,6 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
-      await dbConnect();
       const deleteRes = await (force ? forceDeleteCharacter(charId) : deleteCharacter(charId));
       await this.editOriginalResponse({
         embeds: [
@@ -207,7 +203,6 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
   CommandAutocompleteHandler: class ManageCharactersCommandAutocompleteHandler extends BaseApplicationCommandAutocompleteHandler {
     public async handle(): Promise<void> {
       const { value } = this.getFocusedOption();
-      await dbConnect();
       const characters = await Character.find({ name: { $regex: new RegExp(value.toString(), 'i') } }).limit(25);
       return this.respond({
         type: InteractionResponseType.ApplicationCommandAutocompleteResult,
