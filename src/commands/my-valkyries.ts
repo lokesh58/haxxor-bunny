@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
-import { AugmentCoreRanks, ValkyrieRanks } from '../utils/hi3';
+import { AugmentCoreRanks, ValkyrieRanks } from '../constants/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,

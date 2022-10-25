@@ -1,4 +1,4 @@
-import { Model, model, models, Schema } from 'mongoose';
+import mongoose, { Document, Model, model, models, Schema } from 'mongoose';
 
 export interface ICharacter {
   name: string;
@@ -16,6 +16,8 @@ const charSchema = new Schema<ICharacter>({
     required: false,
   },
 });
+
+export type CharacterDocument = Document<unknown, any, ICharacter> & ICharacter & { _id: mongoose.Types.ObjectId };
 
 export const name = 'hi3-character';
 export const collection = 'hi3-characters';

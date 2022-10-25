@@ -8,10 +8,10 @@ import {
   InteractionType,
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { unknownTypeResp } from '../../../constants/discord';
 import {
   applicationCommandAutocompleteHandler,
   chatInputApplicationCommandHandler,
-  unknownTypeResp,
   verifyKey,
 } from '../../../utils/discord';
 

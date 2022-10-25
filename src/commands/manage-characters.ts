@@ -7,9 +7,9 @@ import {
 } from 'discord.js';
 import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
+import { SingleEmojiRegex, unknownTypeResp } from '../constants/discord';
 import Character from '../models/hi3/Character';
-import { deleteCharacter, forceDeleteCharacter } from '../models/hi3/utils';
-import { SingleEmojiRegex, unknownTypeResp } from '../utils/discord';
+import { deleteCharacter, forceDeleteCharacter } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -105,7 +105,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
           emoji: z.string().regex(SingleEmojiRegex).optional(),
         }),
       );
-      const { name, emoji } = args;
+      const { name } = args;
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });

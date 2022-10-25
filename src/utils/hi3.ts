@@ -1,53 +1,31 @@
-export const ValkyrieBaseRanks = Object.freeze(['b', 'a', 's'] as const);
+import mongoose from 'mongoose';
+import Character, { CharacterDocument } from '../models/hi3/Character';
+import UserValkyrie from '../models/hi3/UserValkyrie';
+import Valkyrie from '../models/hi3/Valkyrie';
 
-export const ValkyrieRanks = Object.freeze([
-  'b',
-  'a',
-  's',
-  's1',
-  's2',
-  's3',
-  'ss',
-  'ss1',
-  'ss2',
-  'ss3',
-  'sss',
-] as const);
+export async function deleteCharacter(characterId: mongoose.Types.ObjectId): Promise<false | CharacterDocument | null> {
+  if (await Valkyrie.exists({ character: characterId })) {
+    return false;
+  }
+  const deletedChar = await Character.findByIdAndDelete(characterId);
+  return deletedChar;
+}
 
-export const ValkyrieNatures = Object.freeze([
-  {
-    display: 'Mecha',
-    value: 'mech',
-    emoji: '<:NatureMecha:825769059994828810>',
-  },
-  {
-    display: 'Biologic',
-    value: 'bio',
-    emoji: '<:NatureBiologic:825769849229672459>',
-  },
-  {
-    display: 'Psychic',
-    value: 'psy',
-    emoji: '<:NaturePsychic:825770181912690688>',
-  },
-  {
-    display: 'Quantum',
-    value: 'qua',
-    emoji: '<:NatureQuantum:826695360168722454>',
-  },
-  {
-    display: 'Imaginary',
-    value: 'imag',
-    emoji: '<:NatureImaginary:901671589614075955>',
-  },
-] as const);
-
-export const AugmentCoreRanks = Object.freeze([1, 2, 3, 4, 5, 6] as const);
-
-/**
- * AugmentCoreRequirements[baseRank][coreRank] = Minimum Valkyrie Rank
- */
-export const AugmentCoreRequirements = Object.freeze({
-  a: ['a', 's', 's', 'ss', 'ss', 'sss'] as const,
-  s: ['s', 's', 's', 's', 'ss', 'sss'] as const,
-});
+export async function forceDeleteCharacter(characterId: mongoose.Types.ObjectId): Promise<CharacterDocument | null> {
+  let deletedChar: CharacterDocument | null = null;
+  await mongoose.connection.transaction(async (session) => {
+    const [, _deletedChar] = await Promise.all([
+      Valkyrie.find({ character: characterId })
+        .session(session)
+        .then((charValks) =>
+          Promise.all([
+            UserValkyrie.deleteMany({ valkyrie: { $in: charValks.map((v) => v._id) } }).session(session),
+            Valkyrie.deleteMany({ character: characterId }).session(session),
+          ]),
+        ),
+      Character.findByIdAndDelete(characterId).session(session),
+    ]);
+    deletedChar = _deletedChar;
+  });
+  return deletedChar;
+}

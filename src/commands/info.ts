@@ -1,5 +1,5 @@
 import { ApplicationCommandType, InteractionResponseType, SnowflakeUtil } from 'discord.js';
-import { BotHomepageUrl, BotInviteUrl, BotName } from '../utils/constants';
+import { BotHomepageUrl, BotInviteUrl, BotName } from '../constants';
 import HaxxorBunnyCommand, { BaseChatInputApplicationCommandHandler } from './base';
 
 const InfoCommand: HaxxorBunnyCommand = {

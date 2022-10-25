@@ -11,9 +11,9 @@ import {
 import { NextApiRequest, NextApiResponse } from 'next';
 import nacl from 'tweetnacl';
 import commands from '../commands';
+import { BotName } from '../constants';
 import HaxxorBunnyError from '../error/HaxxorBunnyError';
 import UnexpectedError from '../error/UnexpectedError';
-import { BotName } from './constants';
 
 export const restClient = new REST().setToken(process.env.DISCORD_BOT_TOKEN!);
 
@@ -32,16 +32,6 @@ export function verifyKey(req: NextApiRequest): boolean {
     Buffer.from(process.env.DISCORD_APP_PUBLIC_KEY!, 'hex'),
   );
 }
-
-export const unknownTypeResp = {
-  type: InteractionResponseType.ChannelMessageWithSource,
-  data: {
-    content: "😕 This shouldn't be here...",
-    flags: MessageFlags.Ephemeral,
-  },
-} as const;
-
-export const SingleEmojiRegex = /^((<a?:\w+:\d+>)|(\p{Extended_Pictographic}))$/gu;
 
 export async function chatInputApplicationCommandHandler(
   res: NextApiResponse<APIInteractionResponse>,

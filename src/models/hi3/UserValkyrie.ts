@@ -1,5 +1,5 @@
 import { Model, model, models, Schema } from 'mongoose';
-import { AugmentCoreRanks, ValkyrieRanks } from '../../utils/hi3';
+import { AugmentCoreRanks, ValkyrieRanks } from '../../constants/hi3';
 
 export interface IUserValkyrie {
   userId: string;

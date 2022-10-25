@@ -1,5 +1,5 @@
 import { Model, model, models, Schema } from 'mongoose';
-import { ValkyrieBaseRanks, ValkyrieNatures } from '../../utils/hi3';
+import { ValkyrieBaseRanks, ValkyrieNatures } from '../../constants/hi3';
 
 export interface IValkyrie {
   character: Schema.Types.ObjectId;

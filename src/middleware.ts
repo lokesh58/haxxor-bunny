@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ExternalBotInviteUrl, InternalBotInviteUrl } from './utils/constants';
+import { ExternalBotInviteUrl, InternalBotInviteUrl } from './constants';
 
 export default async function middleware(request: NextRequest) {
   // Handle Bot Internal Invite Link
