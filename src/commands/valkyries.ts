@@ -1,4 +1,5 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
+import { getValkyriesByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -30,11 +31,13 @@ const ValkyriesCommand: HaxxorBunnyCommand = {
     }
   },
   CommandAutocompleteHandler: class ValkyriesCommandAutocompleteHandler extends BaseApplicationCommandAutocompleteHandler {
-    public handle(): Promise<void> {
+    public async handle(): Promise<void> {
+      const { value } = this.getFocusedOption();
+      const valkyries = await getValkyriesByKeyword(value.toString());
       return this.respond({
         type: InteractionResponseType.ApplicationCommandAutocompleteResult,
         data: {
-          choices: [{ name: 'Work in Progress', value: 'wip' }],
+          choices: valkyries.map((v) => ({ name: v.name, value: v._id.toString() })),
         },
       });
     }

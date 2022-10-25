@@ -1,4 +1,5 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
+import { getCharactersByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -30,11 +31,13 @@ const CharactersCommand: HaxxorBunnyCommand = {
     }
   },
   CommandAutocompleteHandler: class CharactersCommandAutocompleteHandler extends BaseApplicationCommandAutocompleteHandler {
-    public handle(): Promise<void> {
+    public async handle(): Promise<void> {
+      const { value } = this.getFocusedOption();
+      const characters = await getCharactersByKeyword(value.toString());
       return this.respond({
         type: InteractionResponseType.ApplicationCommandAutocompleteResult,
         data: {
-          choices: [{ name: 'Work in Progress', value: 'wip' }],
+          choices: characters.map((c) => ({ name: c.name, value: c._id.toString() })),
         },
       });
     }

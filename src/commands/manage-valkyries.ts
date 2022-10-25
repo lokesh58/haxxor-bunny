@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
 import { ValkyrieBaseRanks, ValkyrieNatures } from '../constants/hi3';
+import { getCharactersByKeyword, getValkyriesByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -129,11 +130,15 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
     }
   },
   CommandAutocompleteHandler: class ManageValkyriesCommandAutocompleteHandler extends BaseApplicationCommandAutocompleteHandler {
-    public handle(): Promise<void> {
+    public async handle(): Promise<void> {
+      const { name, value } = this.getFocusedOption();
+      const docs = await (name === 'valk'
+        ? getValkyriesByKeyword(value.toString())
+        : getCharactersByKeyword(value.toString()));
       return this.respond({
         type: InteractionResponseType.ApplicationCommandAutocompleteResult,
         data: {
-          choices: [{ name: 'Work in Progress', value: 'wip' }],
+          choices: docs.map((d) => ({ name: d.name, value: d._id.toString() })),
         },
       });
     }
