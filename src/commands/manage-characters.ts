@@ -102,7 +102,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
       const args = this.getParsedArguments(
         z.object({
           name: z.string(),
-          emoji: z.string().regex(SingleEmojiRegex).optional(),
+          emoji: z.string().regex(SingleEmojiRegex, { message: 'Invalid Emoji' }).optional(),
         }),
       );
       const { name } = args;
@@ -138,9 +138,9 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
         z.object({
           character: z
             .string()
-            .refine((v) => isValidObjectId(v))
+            .refine((v) => isValidObjectId(v), { message: 'Invalid Character ID' })
             .transform((v) => new Types.ObjectId(v)),
-          emoji: z.string().regex(SingleEmojiRegex).optional(),
+          emoji: z.string().regex(SingleEmojiRegex, { message: 'Invalid Emoji' }).optional(),
         }),
       );
       const { character: charId, ...updateInfo } = args;
@@ -175,7 +175,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
         z.object({
           character: z
             .string()
-            .refine((v) => isValidObjectId(v))
+            .refine((v) => isValidObjectId(v), { message: 'Invalid Character ID' })
             .transform((v) => new Types.ObjectId(v)),
           force: z.boolean().optional(),
         }),

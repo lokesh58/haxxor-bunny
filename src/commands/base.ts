@@ -18,7 +18,7 @@ import {
   Routes,
 } from 'discord.js';
 import { NextApiResponse } from 'next';
-import { ZodError, ZodObject, ZodRawShape } from 'zod';
+import { z, ZodError, ZodTypeAny } from 'zod';
 import HaxxorBunnyError from '../error/HaxxorBunnyError';
 import { restClient } from '../utils/discord';
 
@@ -70,7 +70,7 @@ type APIApplicationCommandInteractionDataAutocompleteSupportedOption =
   | APIApplicationCommandInteractionDataIntegerOption
   | APIApplicationCommandInteractionDataNumberOption;
 
-class SlashCommandDataOptionUtils {
+class SlashCommandInteractionDataOptionUtils {
   public static isSubcommandOption(
     o: APIApplicationCommandInteractionDataOption,
   ): o is APIApplicationCommandInteractionDataSubcommandOption {
@@ -96,20 +96,20 @@ class SlashCommandDataOptionUtils {
   public static isFocused(
     o: APIApplicationCommandInteractionDataOption,
   ): o is APIApplicationCommandInteractionDataAutocompleteSupportedOption & { focused: true } {
-    return SlashCommandDataOptionUtils.isPossibleAutocompleteOption(o) && !!o.focused;
+    return SlashCommandInteractionDataOptionUtils.isPossibleAutocompleteOption(o) && !!o.focused;
   }
 
-  public static parseOptions<T extends ZodRawShape>(
+  public static parseOptions<T extends ZodTypeAny>(
     rawOptions: APIApplicationCommandInteractionDataOption[],
-    parser: ZodObject<T>,
-  ): ReturnType<ZodObject<T>['parse']> {
-    const rawBasicOptions = rawOptions.filter(SlashCommandDataOptionUtils.isBasicOption);
+    schema: T,
+  ): z.infer<T> {
+    const rawBasicOptions = rawOptions.filter(SlashCommandInteractionDataOptionUtils.isBasicOption);
     try {
-      return parser.parse(rawBasicOptions.reduce((oo, o) => ({ ...oo, [o.name]: o.value }), {}));
+      return schema.parse(rawBasicOptions.reduce((oo, o) => ({ ...oo, [o.name]: o.value }), {}));
     } catch (err) {
       if (err instanceof ZodError) {
-        const invalidArgs = [...new Set(err.errors.map((e) => e.path).reduce((s, o) => [...s, ...o], [])).values()];
-        throw new HaxxorBunnyError(`❌ Invalid value for argument(s): \`${invalidArgs.join('`, `')}\``, {
+        const errSummary = err.errors.map((e) => `• \`${e.path}\`: ${e.message}`).join('\n');
+        throw new HaxxorBunnyError(`❌ Invalid value for argument(s):\n${errSummary}`, {
           userDisplayable: true,
         });
       }
@@ -123,7 +123,7 @@ abstract class BaseSlashCommandHandler<
   I extends APIChatInputApplicationCommandInteraction | APIApplicationCommandAutocompleteInteraction,
 > extends BaseInteractionHandler<R, I> {
   protected getSubcommand(): APIApplicationCommandInteractionDataSubcommandOption | undefined {
-    return this.interaction.data.options?.find(SlashCommandDataOptionUtils.isSubcommandOption);
+    return this.interaction.data.options?.find(SlashCommandInteractionDataOptionUtils.isSubcommandOption);
   }
 }
 
@@ -131,10 +131,10 @@ export abstract class BaseChatInputApplicationCommandHandler extends BaseSlashCo
   APIInteractionResponse,
   APIChatInputApplicationCommandInteraction
 > {
-  protected getParsedArguments<T extends ZodRawShape>(parser: ZodObject<T>): ReturnType<ZodObject<T>['parse']> {
+  protected getParsedArguments<T extends ZodTypeAny>(schema: T): z.infer<T> {
     const subcommand = this.getSubcommand();
     const options = subcommand?.options ?? this.interaction.data.options ?? [];
-    return SlashCommandDataOptionUtils.parseOptions(options, parser);
+    return SlashCommandInteractionDataOptionUtils.parseOptions(options, schema);
   }
 
   protected async getOriginalResponse(): Promise<RESTGetAPIInteractionOriginalResponseResult> {
@@ -168,7 +168,7 @@ export abstract class BaseApplicationCommandAutocompleteHandler extends BaseSlas
   protected getFocusedOption() {
     const subcommand = this.getSubcommand();
     const options = subcommand?.options ?? this.interaction.data.options ?? [];
-    return options.find(SlashCommandDataOptionUtils.isFocused)!;
+    return options.find(SlashCommandInteractionDataOptionUtils.isFocused)!;
   }
 }
 
