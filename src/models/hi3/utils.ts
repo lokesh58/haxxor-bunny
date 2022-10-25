@@ -1,9 +1,11 @@
-import mongoose from 'mongoose';
-import Character from './Character';
+import mongoose, { Document } from 'mongoose';
+import Character, { ICharacter } from './Character';
 import UserValkyrie from './UserValkyrie';
 import Valkyrie from './Valkyrie';
 
-export async function deleteCharacter(characterId: mongoose.Types.ObjectId) {
+type CharacterDocument = Document<unknown, any, ICharacter> & ICharacter & { _id: mongoose.Types.ObjectId };
+
+export async function deleteCharacter(characterId: mongoose.Types.ObjectId): Promise<false | CharacterDocument | null> {
   if (await Valkyrie.exists({ character: characterId })) {
     return false;
   }
@@ -11,11 +13,10 @@ export async function deleteCharacter(characterId: mongoose.Types.ObjectId) {
   return deletedChar;
 }
 
-export async function forceDeleteCharacter(characterId: mongoose.Types.ObjectId) {
-  const session = await mongoose.startSession();
-  session.startTransaction();
-  try {
-    const [, deletedChar] = await Promise.all([
+export async function forceDeleteCharacter(characterId: mongoose.Types.ObjectId): Promise<CharacterDocument | null> {
+  let deletedChar: CharacterDocument | null = null;
+  await mongoose.connection.transaction(async (session) => {
+    const [, _deletedChar] = await Promise.all([
       Valkyrie.find({ character: characterId })
         .session(session)
         .then((charValks) =>
@@ -26,12 +27,7 @@ export async function forceDeleteCharacter(characterId: mongoose.Types.ObjectId)
         ),
       Character.findByIdAndDelete(characterId).session(session),
     ]);
-    await session.commitTransaction();
-    return deletedChar;
-  } catch (err) {
-    await session.abortTransaction();
-    throw err;
-  } finally {
-    await session.endSession();
-  }
+    deletedChar = _deletedChar;
+  });
+  return deletedChar;
 }
