@@ -153,8 +153,8 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
             .string()
             .regex(
               new RegExp(
-                `^((\s*\w)+\s+(${possibleRankAugRanks}))(\s*,(\s*\w)+\s+(${possibleRankAugRanks}))*\s*$`,
-                'ig',
+                `^((\\s*\\w)+\\s+(${possibleRankAugRanks}))(\\s*,(\\s*\\w)+\\s+(${possibleRankAugRanks}))*\\s*$`,
+                'gi',
               ),
               {
                 message: 'Please use `<valk> <rank/aug rank> (, ...)` notation',
@@ -173,9 +173,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
     private async deleteMany(): Promise<void> {
       const args = this.getParsedArguments(
         z.object({
-          valks: z
-            .string()
-            .regex(/^(\s*\w)+(\s*,(\s*\w)+)*\s*$/gi, { message: 'Please use `<valk> (, ...)` notation' }),
+          valks: z.string().regex(/^(\s*\w)+(\s*,(\s*\w)+)*\s*$/i, { message: 'Please use `<valk> (, ...)` notation' }),
         }),
       );
       return this.respond({
