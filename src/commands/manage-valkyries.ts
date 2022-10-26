@@ -1,5 +1,13 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
-import { ValkyrieBaseRanks, ValkyrieNatures } from '../constants/hi3';
+import {
+  ApplicationCommandOptionType,
+  ApplicationCommandType,
+  InteractionResponseType,
+  MessageFlags,
+} from 'discord.js';
+import { isValidObjectId, Types } from 'mongoose';
+import { z } from 'zod';
+import { SingleEmojiRegex, unknownTypeResp } from '../constants/discord';
+import { ValkyrieBaseRanks, ValkyrieNatures, ValkyrieNaturesDisplay } from '../constants/hi3';
 import { getCharactersByKeyword, getValkyriesByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
@@ -34,7 +42,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
             type: ApplicationCommandOptionType.String,
             name: 'nature',
             description: 'Nature of the valkyrie',
-            choices: ValkyrieNatures.map((n) => ({ name: n.display, value: n.value })),
+            choices: ValkyrieNatures.map((n) => ({ name: ValkyrieNaturesDisplay[n].display, value: n })),
             required: true,
           },
           {
@@ -121,10 +129,103 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
   ownerOnly: true,
   CommandHandler: class ManageValkyriesCommandHandler extends BaseChatInputApplicationCommandHandler {
     public handle(): Promise<void> {
+      const subcommad = this.getSubcommand();
+      switch (subcommad?.name) {
+        case 'create':
+          return this.create();
+        case 'update':
+          return this.update();
+        case 'delete':
+          return this.delete();
+        default:
+          return this.respond(unknownTypeResp);
+      }
+    }
+
+    private async create(): Promise<void> {
+      const args = this.getParsedArguments(
+        z
+          .object({
+            character: z
+              .string()
+              .refine((v) => isValidObjectId(v), { message: 'Invalid Character ID' })
+              .transform((v) => new Types.ObjectId(v)),
+            name: z.string(),
+            nature: z.enum(ValkyrieNatures),
+            'base-rank': z.enum(ValkyrieBaseRanks),
+            acronyms: z.string().optional(),
+            emoji: z.string().regex(SingleEmojiRegex, { message: 'Invalid Emoji' }).optional(),
+            'aug-emoji': z.string().regex(SingleEmojiRegex, { message: 'Invalid Emoji' }).optional(),
+          })
+          .transform(({ 'base-rank': baseRank, 'aug-emoji': augEmoji, ...rest }) => ({
+            ...(baseRank && { baseRank }),
+            ...(augEmoji && { augEmoji }),
+            ...rest,
+          })),
+      );
       return this.respond({
         type: InteractionResponseType.ChannelMessageWithSource,
         data: {
-          content: '🚧 Work in Progress',
+          content: JSON.stringify(args),
+        },
+      });
+    }
+
+    private async update(): Promise<void> {
+      const args = this.getParsedArguments(
+        z
+          .object({
+            valk: z
+              .string()
+              .refine((v) => isValidObjectId(v), { message: 'Invalid Valkyrie ID' })
+              .transform((v) => new Types.ObjectId(v)),
+            'delta-acronyms': z
+              .string()
+              .regex(/^\s*(\+|-)\w+(\s*,\s*(\+|-)\w+)*\s*$/i, {
+                message: 'Please use `<+/-><acronym> (, ...)` notation',
+              })
+              .optional(),
+            emoji: z.string().regex(SingleEmojiRegex, { message: 'Invalid Emoji' }).optional(),
+            'aug-emoji': z.string().regex(SingleEmojiRegex, { message: 'Invalid Emoji' }).optional(),
+          })
+          .transform(({ 'delta-acronyms': deltaAcronyms, 'aug-emoji': augEmoji, ...rest }) => ({
+            ...(deltaAcronyms && { deltaAcronyms }),
+            ...(augEmoji && { augEmoji }),
+            ...rest,
+          })),
+      );
+      const { valk: valkId, ...updateInfo } = args;
+      if (!Object.values(updateInfo).filter(Boolean).length) {
+        return this.respond({
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            content: '❓ Nothing to update!',
+            flags: MessageFlags.Ephemeral,
+          },
+        });
+      }
+      return this.respond({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: {
+          content: JSON.stringify(args),
+        },
+      });
+    }
+
+    private async delete(): Promise<void> {
+      const args = this.getParsedArguments(
+        z.object({
+          valk: z
+            .string()
+            .refine((v) => isValidObjectId(v), { message: 'Invalid Character ID' })
+            .transform((v) => new Types.ObjectId(v)),
+          force: z.boolean().optional(),
+        }),
+      );
+      return this.respond({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: {
+          content: JSON.stringify(args),
         },
       });
     }

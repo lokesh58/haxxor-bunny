@@ -154,7 +154,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
             .regex(
               new RegExp(
                 `^((\\s*\\w)+\\s+(${possibleRankAugRanks}))(\\s*,(\\s*\\w)+\\s+(${possibleRankAugRanks}))*\\s*$`,
-                'gi',
+                'i',
               ),
               {
                 message: 'Please use `<valk> <rank/aug rank> (, ...)` notation',

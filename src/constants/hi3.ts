@@ -14,33 +14,30 @@ export const ValkyrieRanks = Object.freeze([
   'sss',
 ] as const);
 
-export const ValkyrieNatures = Object.freeze([
-  {
+export const ValkyrieNatures = Object.freeze(['mech', 'bio', 'psy', 'qua', 'imag'] as const);
+
+export const ValkyrieNaturesDisplay = Object.freeze({
+  mech: {
     display: 'Mecha',
-    value: 'mech',
     emoji: '<:NatureMecha:825769059994828810>',
   },
-  {
+  bio: {
     display: 'Biologic',
-    value: 'bio',
     emoji: '<:NatureBiologic:825769849229672459>',
   },
-  {
+  psy: {
     display: 'Psychic',
-    value: 'psy',
     emoji: '<:NaturePsychic:825770181912690688>',
   },
-  {
+  qua: {
     display: 'Quantum',
-    value: 'qua',
     emoji: '<:NatureQuantum:826695360168722454>',
   },
-  {
+  imag: {
     display: 'Imaginary',
-    value: 'imag',
     emoji: '<:NatureImaginary:901671589614075955>',
   },
-] as const);
+} as const);
 
 export const AugmentCoreRanks = Object.freeze([1, 2, 3, 4, 5, 6] as const);
 

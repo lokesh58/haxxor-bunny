@@ -4,7 +4,7 @@ import { ValkyrieBaseRanks, ValkyrieNatures } from '../../constants/hi3';
 export interface IValkyrie {
   character: Schema.Types.ObjectId;
   name: string;
-  nature: typeof ValkyrieNatures[number]['value'];
+  nature: typeof ValkyrieNatures[number];
   baseRank: typeof ValkyrieBaseRanks[number];
   acronyms: string[];
   emoji?: string;
@@ -22,7 +22,7 @@ const valkSchema = new Schema<IValkyrie>({
   },
   nature: {
     type: String,
-    enum: ValkyrieNatures.map((n) => n.value),
+    enum: ValkyrieNatures,
     required: true,
   },
   baseRank: {
