@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
-import { isValidObjectId } from 'mongoose';
+import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import { getCharactersByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
@@ -29,6 +29,7 @@ const CharactersCommand: HaxxorBunnyCommand = {
           character: z
             .string()
             .refine((v) => isValidObjectId(v), { message: 'Invalid Character ID' })
+            .transform((v) => new Types.ObjectId(v))
             .optional(),
         }),
       );

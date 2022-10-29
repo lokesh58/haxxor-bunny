@@ -1,5 +1,5 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
-import { isValidObjectId } from 'mongoose';
+import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import { getValkyriesByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
@@ -29,6 +29,7 @@ const ValkyriesCommand: HaxxorBunnyCommand = {
           valk: z
             .string()
             .refine((v) => isValidObjectId(v), { message: 'Invalid Valkyrie ID' })
+            .transform((v) => new Types.ObjectId(v))
             .optional(),
         }),
       );

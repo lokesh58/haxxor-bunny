@@ -153,12 +153,32 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
             .string()
             .regex(
               new RegExp(
-                `^((\\s*\\w)+\\s+(${possibleRankAugRanks}))(\\s*,(\\s*\\w)+\\s+(${possibleRankAugRanks}))*\\s*$`,
+                `^\\s*(\\w+\\s+)+(${possibleRankAugRanks})(\\s*,\\s*(\\w+\\s+)+(${possibleRankAugRanks}))*\\s*$`,
                 'i',
               ),
               {
                 message: 'Please use `<valk> <rank/aug rank> (, ...)` notation',
               },
+            )
+            .transform((v) =>
+              v
+                .trim()
+                .split(/\s*,\s*/)
+                .map((rawValk) => {
+                  const parts = rawValk.split(/\s+/);
+                  const rankOrAugRank = parts.pop()!;
+                  const nameOrAcronym = parts.join(' ');
+                  if (!isNaN(+rankOrAugRank)) {
+                    return {
+                      nameOrAcronym,
+                      augRank: +rankOrAugRank as typeof AugmentCoreRanks[number],
+                    };
+                  }
+                  return {
+                    nameOrAcronym,
+                    rank: rankOrAugRank.toLowerCase() as typeof ValkyrieRanks[number],
+                  };
+                }),
             ),
         }),
       );
@@ -173,7 +193,10 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
     private async deleteMany(): Promise<void> {
       const args = this.getParsedArguments(
         z.object({
-          valks: z.string().regex(/^(\s*\w)+(\s*,(\s*\w)+)*\s*$/i, { message: 'Please use `<valk> (, ...)` notation' }),
+          valks: z
+            .string()
+            .regex(/^\s*(\w+\s+)*\w+(\s*,\s*(\w+\s+)*\w+)*\s*$/, { message: 'Please use `<valk> (, ...)` notation' })
+            .transform((v) => v.trim().split(/\s*,\s*/)),
         }),
       );
       return this.respond({

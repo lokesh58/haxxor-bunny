@@ -8,4 +8,4 @@ export const unknownTypeResp = {
   },
 } as const;
 
-export const SingleEmojiRegex = /^((<a?:\w+:\d+>)|(\p{Extended_Pictographic}))$/gu;
+export const SingleEmojiRegex = /^((<a?:\w+:\d+>)|(\p{Extended_Pictographic}))$/u;
