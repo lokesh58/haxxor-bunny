@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { SingleEmojiRegex, unknownTypeResp } from '../constants/discord';
 import { ValkyrieBaseRanks, ValkyrieNatures, ValkyrieNaturesDisplay } from '../constants/hi3';
 import Valkyrie from '../models/hi3/Valkyrie';
-import { getCharactersByKeyword, getValkyriesByKeyword } from '../utils/hi3';
+import { deleteValkyrie, forceDeleteValkyrie, getCharactersByKeyword, getValkyriesByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -294,11 +294,23 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
           force: z.boolean().optional(),
         }),
       );
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: JSON.stringify(args),
-        },
+      const { valk: valkId, force = false } = args;
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+      });
+      const deleteRes = await (force ? forceDeleteValkyrie(valkId) : deleteValkyrie(valkId));
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'Delete Valkyrie',
+            description: deleteRes
+              ? `✅ Valkyrie \`${deleteRes.name}\` deleted successfully`
+              : deleteRes === null
+              ? "❌ The given Valkyrie doesn't exist"
+              : '⚠️ User valkyries data found for this valkyrie, aborting delete. Use `force: true` to delete the valkyrie along with the user valkyries data',
+            color: deleteRes ? Colors.Green : deleteRes === null ? Colors.Red : Colors.Yellow,
+          },
+        ],
       });
     }
   },

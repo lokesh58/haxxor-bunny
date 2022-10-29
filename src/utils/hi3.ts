@@ -17,6 +17,26 @@ export async function getValkyriesByKeyword(keyword: string, limit: number = 25)
   return valkyries;
 }
 
+export async function deleteValkyrie(valkyrieId: mongoose.Types.ObjectId): Promise<false | ValkyrieDocument | null> {
+  if (await UserValkyrie.exists({ valkyrie: valkyrieId })) {
+    return false;
+  }
+  const deletedValk = await Valkyrie.findByIdAndDelete(valkyrieId);
+  return deletedValk;
+}
+
+export async function forceDeleteValkyrie(valkyrieId: mongoose.Types.ObjectId): Promise<ValkyrieDocument | null> {
+  let deletedValk: ValkyrieDocument | null = null;
+  await mongoose.connection.transaction(async (session) => {
+    const [, _deletedValk] = await Promise.all([
+      UserValkyrie.deleteMany({ valkyrie: valkyrieId }).session(session),
+      Valkyrie.findByIdAndDelete(valkyrieId).session(session),
+    ]);
+    deletedValk = _deletedValk;
+  });
+  return deletedValk;
+}
+
 export async function getCharactersByKeyword(keyword: string, limit: number = 25): Promise<CharacterDocument[]> {
   const characters = await Character.find({ name: { $regex: new RegExp(keyword, 'i') } }).limit(limit);
   return characters;
