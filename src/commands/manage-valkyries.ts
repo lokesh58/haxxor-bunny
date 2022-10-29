@@ -1,6 +1,7 @@
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
+  Colors,
   InteractionResponseType,
   MessageFlags,
 } from 'discord.js';
@@ -8,6 +9,7 @@ import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import { SingleEmojiRegex, unknownTypeResp } from '../constants/discord';
 import { ValkyrieBaseRanks, ValkyrieNatures, ValkyrieNaturesDisplay } from '../constants/hi3';
+import Valkyrie from '../models/hi3/Valkyrie';
 import { getCharactersByKeyword, getValkyriesByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
@@ -153,7 +155,11 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
             name: z.string(),
             nature: z.enum(ValkyrieNatures),
             'base-rank': z.enum(ValkyrieBaseRanks),
-            acronyms: z.string().optional(),
+            acronyms: z
+              .string()
+              .regex(/^\s*\w+(\s*,\s*\w+)*\s*$/, { message: 'Please use `<acronym> (, ...)` notation' })
+              .transform((v) => v.trim().split(/\s*,\s*/))
+              .optional(),
             emoji: z.string().regex(SingleEmojiRegex, { message: 'Invalid Emoji' }).optional(),
             'aug-emoji': z.string().regex(SingleEmojiRegex, { message: 'Invalid Emoji' }).optional(),
           })
@@ -163,11 +169,35 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
             ...rest,
           })),
       );
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: JSON.stringify(args),
-        },
+      const { name, acronyms = [] } = args;
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+      });
+      if (await Valkyrie.exists({ $or: [{ name }, { acronyms: new RegExp(`^(${acronyms.join('|')})$`, 'i') }] })) {
+        await this.editOriginalResponse({
+          embeds: [
+            {
+              title: 'Create Valkyrie',
+              description: `❌ Valkyrie with name \`${name}\`${
+                acronyms.length
+                  ? ` or acronym as${acronyms.length > 1 ? ' atleast one of' : ''} \`${acronyms.join('`, `')}\``
+                  : ''
+              } already exists`,
+              color: Colors.Red,
+            },
+          ],
+        });
+        return;
+      }
+      await new Valkyrie(args).save();
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'Create Valkyrie',
+            description: `✅ Valkyrie \`${name}\` created successfully`,
+            color: Colors.Green,
+          },
+        ],
       });
     }
 
@@ -181,7 +211,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
               .transform((v) => new Types.ObjectId(v)),
             'delta-acronyms': z
               .string()
-              .regex(/^\s*(\+|-)\w+(\s*,\s*(\+|-)\w+)*\s*$/i, {
+              .regex(/^\s*(\+|-)\w+(\s*,\s*(\+|-)\w+)*\s*$/, {
                 message: 'Please use `<+/-><acronym> (, ...)` notation',
               })
               .optional(),
