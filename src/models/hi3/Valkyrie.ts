@@ -1,15 +1,21 @@
 import mongoose, { Document, Model, model, models, Schema } from 'mongoose';
-import { ValkyrieBaseRanks, ValkyrieNatures } from '../../constants/hi3';
+import { PossibleAugmentBaseRanks, ValkyrieBaseRanks, ValkyrieNatures } from '../../constants/hi3';
 
-export interface IValkyrie {
+export type IValkyrie = {
   character: Schema.Types.ObjectId;
   name: string;
   nature: typeof ValkyrieNatures[number];
-  baseRank: typeof ValkyrieBaseRanks[number];
   acronyms: string[];
   emoji?: string;
-  augEmoji?: string;
-}
+} & (
+  | {
+      baseRank: typeof ValkyrieBaseRanks[number];
+    }
+  | {
+      baseRank: typeof PossibleAugmentBaseRanks[number];
+      augEmoji?: string;
+    }
+);
 
 const valkSchema = new Schema<IValkyrie>({
   character: {

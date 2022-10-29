@@ -1,11 +1,23 @@
 import mongoose from 'mongoose';
-import { AugmentCoreRanks } from '../constants/hi3';
+import { AugmentCoreRanks, PossibleAugmentBaseRanks, ValkyrieBaseRanks } from '../constants/hi3';
 import Character, { CharacterDocument } from '../models/hi3/Character';
 import UserValkyrie from '../models/hi3/UserValkyrie';
-import Valkyrie, { ValkyrieDocument } from '../models/hi3/Valkyrie';
+import Valkyrie, { IValkyrie, ValkyrieDocument } from '../models/hi3/Valkyrie';
 
 export function isValidAugmentCoreRank(value: number): value is typeof AugmentCoreRanks[number] {
   return AugmentCoreRanks.includes(value as any);
+}
+
+export function isValidAugmentBaseRank(
+  baseRank: typeof ValkyrieBaseRanks[number],
+): baseRank is typeof PossibleAugmentBaseRanks[number] {
+  return PossibleAugmentBaseRanks.includes(baseRank as any);
+}
+
+export function canValkyrieHaveAugment(
+  valkyrie: IValkyrie,
+): valkyrie is IValkyrie & { baseRank: typeof PossibleAugmentBaseRanks[number] } {
+  return isValidAugmentBaseRank(valkyrie.baseRank);
 }
 
 export async function getValkyriesByKeyword(keyword: string, limit: number = 25): Promise<ValkyrieDocument[]> {

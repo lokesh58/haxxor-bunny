@@ -1,4 +1,4 @@
-import { Model, model, models, Schema } from 'mongoose';
+import mongoose, { Document, Model, model, models, Schema } from 'mongoose';
 import { AugmentCoreRanks, ValkyrieRanks } from '../../constants/hi3';
 
 export interface IUserValkyrie {
@@ -28,6 +28,9 @@ const userValkSchema = new Schema<IUserValkyrie>({
     required: false,
   },
 });
+
+export type UserValkyrieDocument = Document<unknown, any, IUserValkyrie> &
+  IUserValkyrie & { _id: mongoose.Types.ObjectId };
 
 export const name = 'hi3-user-valkyrie';
 export const collection = 'hi3-user-valkyries';

@@ -8,9 +8,16 @@ import {
 import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import { SingleEmojiRegex, unknownTypeResp } from '../constants/discord';
-import { ValkyrieBaseRanks, ValkyrieNatures, ValkyrieNaturesDisplay } from '../constants/hi3';
+import { PossibleAugmentBaseRanks, ValkyrieBaseRanks, ValkyrieNatures, ValkyrieNaturesDisplay } from '../constants/hi3';
 import Valkyrie from '../models/hi3/Valkyrie';
-import { deleteValkyrie, forceDeleteValkyrie, getCharactersByKeyword, getValkyriesByKeyword } from '../utils/hi3';
+import {
+  canValkyrieHaveAugment,
+  deleteValkyrie,
+  forceDeleteValkyrie,
+  getCharactersByKeyword,
+  getValkyriesByKeyword,
+  isValidAugmentBaseRank,
+} from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -168,7 +175,18 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
             ...rest,
           })),
       );
-      const { name, acronyms } = args;
+      const { name, acronyms, augEmoji, baseRank } = args;
+      if (!isValidAugmentBaseRank(baseRank) && augEmoji) {
+        return this.respond({
+          type: InteractionResponseType.ChannelMessageWithSource,
+          data: {
+            content: `❌ Valkyrie which doesn't have base rank as one of \`${PossibleAugmentBaseRanks.map((r) =>
+              r.toUpperCase(),
+            ).join('`, `')}\` cannot have an augment`,
+            flags: MessageFlags.Ephemeral,
+          },
+        });
+      }
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
@@ -259,6 +277,21 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
         });
         return;
       }
+      const canHaveAug = canValkyrieHaveAugment(valk);
+      if (!canHaveAug && augEmoji) {
+        await this.editOriginalResponse({
+          embeds: [
+            {
+              title: 'Update Valkyrie',
+              description: `❌ Valkyrie which doesn't have base rank as one of \`${PossibleAugmentBaseRanks.map((r) =>
+                r.toUpperCase(),
+              ).join('`, `')}\` cannot have an augment`,
+              color: Colors.Red,
+            },
+          ],
+        });
+        return;
+      }
       if (deltaAcronyms) {
         const acronymSet = new Set(valk.acronyms.map((a) => a.toLowerCase()));
         deltaAcronyms.add.forEach((a) => {
@@ -271,7 +304,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
         valk.acronyms = valk.acronyms.filter((va) => !removeSet.has(va.toLowerCase()));
       }
       if (emoji) valk.emoji = emoji;
-      if (augEmoji) valk.augEmoji = augEmoji;
+      if (canHaveAug && augEmoji) valk.augEmoji = augEmoji;
       await valk.save();
       await this.editOriginalResponse({
         embeds: [

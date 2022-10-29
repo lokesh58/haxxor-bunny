@@ -10,6 +10,7 @@ import {
   APIChatInputApplicationCommandInteraction,
   APIInteraction,
   APIInteractionResponse,
+  APIUser,
   ApplicationCommandData,
   ApplicationCommandOptionType,
   RESTGetAPIInteractionOriginalResponseResult,
@@ -62,6 +63,10 @@ abstract class BaseInteractionHandler<R extends APIInteractionResponse, I extend
         })
         .send(body);
     });
+  }
+
+  protected get user(): APIUser {
+    return this.interaction.user ?? this.interaction.member!.user;
   }
 }
 

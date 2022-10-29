@@ -41,6 +41,8 @@ export const ValkyrieNaturesDisplay = Object.freeze({
 
 export const AugmentCoreRanks = Object.freeze([1, 2, 3, 4, 5, 6] as const);
 
+export const PossibleAugmentBaseRanks = Object.freeze(['a', 's'] as const);
+
 /**
  * AugmentCoreRequirements[baseRank][coreRank] = Minimum Valkyrie Rank
  */

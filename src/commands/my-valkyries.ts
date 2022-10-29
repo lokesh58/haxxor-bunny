@@ -1,14 +1,17 @@
 import {
   ApplicationCommandOptionType,
   ApplicationCommandType,
+  Colors,
   InteractionResponseType,
   MessageFlags,
 } from 'discord.js';
 import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import { unknownTypeResp } from '../constants/discord';
-import { AugmentCoreRanks, ValkyrieRanks } from '../constants/hi3';
-import { getValkyriesByKeyword, isValidAugmentCoreRank } from '../utils/hi3';
+import { AugmentCoreRanks, AugmentCoreRequirements, ValkyrieRanks } from '../constants/hi3';
+import UserValkyrie, { UserValkyrieDocument } from '../models/hi3/UserValkyrie';
+import Valkyrie, { ValkyrieDocument } from '../models/hi3/Valkyrie';
+import { canValkyrieHaveAugment, getValkyriesByKeyword, isValidAugmentCoreRank } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -125,9 +128,10 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
             'aug-rank': z.number().refine(isValidAugmentCoreRank, { message: 'Invalid Augment Core Rank' }).optional(),
             remove: z.boolean().optional(),
           })
-          .transform(({ 'aug-rank': augRank, ...rest }) => ({ ...(augRank && { augRank }), ...rest })),
+          .transform(({ 'aug-rank': augRank, ...rest }) => ({ ...(augRank && { coreRank: augRank }), ...rest })),
       );
       const { valk: valkId, ...updateInfo } = args;
+      const { remove = false, ...newInfo } = updateInfo;
       if (!Object.values(updateInfo).filter(Boolean).length) {
         return this.respond({
           type: InteractionResponseType.ChannelMessageWithSource,
@@ -137,12 +141,112 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
           },
         });
       }
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: JSON.stringify(args),
-        },
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
+      const valk = await Valkyrie.findById(valkId);
+      if (!valk) {
+        await this.editOriginalResponse({
+          embeds: [
+            {
+              title: 'Update My Valkyries Data',
+              description: "❌ Given valkyrie doesn't exist",
+              color: Colors.Red,
+            },
+          ],
+        });
+        return;
+      }
+      if (remove) {
+        const deletedUserValk = await UserValkyrie.findOneAndDelete({ valkyrie: valkId, userId: this.user.id });
+        await this.editOriginalResponse({
+          embeds: [
+            {
+              title: 'Update My Valkyrie Data',
+              description: deletedUserValk
+                ? `✅ Valkyrie data for \`${valk.name}\` removed successfully`
+                : `❌ Valkyrie data not found for \`${valk.name}\``,
+              color: deletedUserValk ? Colors.Green : Colors.Red,
+            },
+          ],
+        });
+        return;
+      }
+      let userValk = await UserValkyrie.findOne({ valkyrie: valkId, userId: this.user.id });
+      if (!userValk) {
+        if (!newInfo.rank) {
+          await this.editOriginalResponse({
+            embeds: [
+              {
+                title: 'Update My Valkyries Data',
+                description: `❌ Battlesuit rank data neither supplied nor present previously for \`${valk.name}\``,
+                color: Colors.Red,
+              },
+            ],
+          });
+          return;
+        }
+        userValk = new UserValkyrie({ valkyrie: valkId, userId: this.user.id, ...newInfo });
+      } else {
+        if (newInfo.rank) userValk.rank = newInfo.rank;
+        if (newInfo.coreRank) userValk.coreRank = newInfo.coreRank;
+      }
+      const validationRes = this.validateUserValkUpdateData(valk, userValk);
+      if (!validationRes.valid) {
+        await this.editOriginalResponse({
+          embeds: [
+            {
+              title: 'Update My Valkyries Data',
+              description: validationRes.message,
+              color: Colors.Red,
+            },
+          ],
+        });
+        return;
+      }
+      await userValk.save();
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'Update My Valkyries Data',
+            description: `✅ Valkyrie data for \`${valk.name}\` updated successfully`,
+            color: Colors.Green,
+          },
+        ],
+      });
+    }
+
+    private validateUserValkUpdateData(
+      valk: ValkyrieDocument,
+      userValk: UserValkyrieDocument,
+    ): { valid: true } | { valid: false; message: string } {
+      if (ValkyrieRanks.indexOf(userValk.rank) < ValkyrieRanks.indexOf(valk.baseRank)) {
+        return {
+          valid: false,
+          message: `❌ Battlesuit rank cannot be lower than valkyrie base rank (\`${valk.baseRank.toUpperCase()}\` for \`${
+            valk.name
+          }\`)`,
+        };
+      }
+      const hasAug = canValkyrieHaveAugment(valk) && !!valk.augEmoji;
+      if (!hasAug && userValk.coreRank) {
+        return {
+          valid: false,
+          message: `❌ Valkyrie \`${valk.name}\` doesn't have an augment`,
+        };
+      }
+      if (hasAug && userValk.coreRank) {
+        const minReqRank = AugmentCoreRequirements[valk.baseRank][userValk.coreRank - 1];
+        if (ValkyrieRanks.indexOf(userValk.rank) < ValkyrieRanks.indexOf(minReqRank)) {
+          return {
+            valid: false,
+            message: `❌ Battlesuit rank must be atleast \`${minReqRank.toUpperCase()}\` to have Augment Core Rank \`${
+              userValk.coreRank
+            }\``,
+          };
+        }
+      }
+      return { valid: true };
     }
 
     private async addMany(): Promise<void> {
@@ -171,7 +275,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
                   if (!isNaN(+rankOrAugRank)) {
                     return {
                       nameOrAcronym,
-                      augRank: +rankOrAugRank as typeof AugmentCoreRanks[number],
+                      coreRank: +rankOrAugRank as typeof AugmentCoreRanks[number],
                     };
                   }
                   return {
