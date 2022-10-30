@@ -1,5 +1,6 @@
 import mongoose, { Document, Model, model, models, Schema } from 'mongoose';
 import { AugmentCoreRanks, ValkyrieRanks } from '../../constants/hi3';
+import { name as ValkyrieModelName } from './Valkyrie';
 
 export interface IUserValkyrie {
   userId: string;
@@ -15,6 +16,7 @@ const userValkSchema = new Schema<IUserValkyrie>({
   },
   valkyrie: {
     type: Schema.Types.ObjectId,
+    ref: ValkyrieModelName,
     required: true,
   },
   rank: {

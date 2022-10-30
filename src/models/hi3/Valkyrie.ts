@@ -1,5 +1,6 @@
 import mongoose, { Document, Model, model, models, Schema } from 'mongoose';
 import { PossibleAugmentBaseRanks, ValkyrieBaseRanks, ValkyrieNatures } from '../../constants/hi3';
+import { name as CharacterModelName } from './Character';
 
 export type IValkyrie = {
   character: Schema.Types.ObjectId;
@@ -20,6 +21,7 @@ export type IValkyrie = {
 const valkSchema = new Schema<IValkyrie>({
   character: {
     type: Schema.Types.ObjectId,
+    ref: CharacterModelName,
     required: true,
   },
   name: {
