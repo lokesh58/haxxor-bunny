@@ -87,13 +87,16 @@ const CharactersCommand: HaxxorBunnyCommand = {
         embeds: [
           {
             title: 'View Character',
-            description: char.name,
             ...(emojiUrl && { thumbnail: { url: emojiUrl } }),
             fields: [
               {
+                name: 'Name',
+                value: char.name,
+              },
+              {
                 name: 'Valkyries',
                 value: valks.length
-                  ? valks.map((v) => `• ${ValkyrieListDisplay(v)}`).join('\n')
+                  ? valks.map((v) => ValkyrieListDisplay(v)).join('\n')
                   : `*No Valkyries for \`${char.name}\`*`,
               },
             ],
