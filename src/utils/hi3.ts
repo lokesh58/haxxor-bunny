@@ -5,17 +5,17 @@ import {
   ValkyrieBaseRanks,
   ValkyrieNaturesDisplay,
 } from '../constants/hi3';
-import Character, { CharacterDocument } from '../models/hi3/Character';
+import Character, { CharacterDocument, ICharacter } from '../models/hi3/Character';
 import UserValkyrie from '../models/hi3/UserValkyrie';
 import Valkyrie, { IValkyrie, ValkyrieDocument } from '../models/hi3/Valkyrie';
 
-export function ValkyrieListDisplay(valkyrie: ValkyrieDocument): string {
+export function ValkyrieListDisplay(valkyrie: IValkyrie): string {
   return `\`${valkyrie.name}\` ${valkyrie.emoji ?? '-'} \`${valkyrie.acronyms[0]}\` ${
     ValkyrieNaturesDisplay[valkyrie.nature].emoji
   }${'augEmoji' in valkyrie && valkyrie.augEmoji ? ` ${valkyrie.augEmoji}` : ''}`;
 }
 
-export function CharacterListDisplay(character: CharacterDocument): string {
+export function CharacterListDisplay(character: ICharacter): string {
   return `\`${character.name}\`${character.emoji ? ` ${character.emoji}` : ''}`;
 }
 

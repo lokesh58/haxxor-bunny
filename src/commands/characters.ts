@@ -83,7 +83,7 @@ const CharactersCommand: HaxxorBunnyCommand = {
         embeds: [
           {
             title: 'View Character',
-            description: `${char.name}`,
+            description: char.name,
             ...(emojiUrl && { thumbnail: { url: emojiUrl } }),
             fields: [
               {

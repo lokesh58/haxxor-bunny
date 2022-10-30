@@ -22,7 +22,7 @@ export function verifyKey(req: NextApiRequest): boolean {
 
 export function getEmojiUrl(emoji: string): string | null {
   const parsed = parseEmoji(emoji);
-  if (!parsed) return null;
+  if (!parsed?.name) return null;
   if (!parsed.id) {
     return `https://twitter.github.io/twemoji/v/13.1.0/72x72/${parsed.name.codePointAt(0)!.toString(16)}.png`;
   }
