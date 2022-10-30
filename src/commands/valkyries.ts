@@ -50,7 +50,7 @@ const ValkyriesCommand: HaxxorBunnyCommand = {
         embeds: [
           {
             title: 'Valkyries',
-            description: valks.map((v) => `• ${ValkyrieListDisplay(v)}`).join('\n'),
+            description: valks.length ? valks.map((v) => `• ${ValkyrieListDisplay(v)}`).join('\n') : '*No valkyries*',
           },
         ],
       });

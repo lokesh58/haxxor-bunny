@@ -15,6 +15,10 @@ export function ValkyrieListDisplay(valkyrie: ValkyrieDocument): string {
   }${'augEmoji' in valkyrie && valkyrie.augEmoji ? ` ${valkyrie.augEmoji}` : ''}`;
 }
 
+export function CharacterListDisplay(character: CharacterDocument): string {
+  return `\`${character.name}\`${character.emoji ? ` ${character.emoji}` : ''}`;
+}
+
 export function isValidAugmentCoreRank(value: number): value is typeof AugmentCoreRanks[number] {
   return AugmentCoreRanks.includes(value as any);
 }
