@@ -9,7 +9,6 @@ const charSchema = new Schema<ICharacter>({
   name: {
     type: String,
     required: true,
-    index: true,
   },
   emoji: {
     type: String,
