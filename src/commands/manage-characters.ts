@@ -114,7 +114,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
           embeds: [
             {
               title: 'Create Character',
-              description: `❌ Character \`${name}\` already exists`,
+              description: `❌ Character **${name}** already exists`,
               color: Colors.Red,
             },
           ],
@@ -126,7 +126,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
         embeds: [
           {
             title: 'Create Character',
-            description: `✅ Character \`${name}\` created successfully`,
+            description: `✅ Character **${name}** created successfully`,
             color: Colors.Green,
           },
         ],
@@ -162,7 +162,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
           {
             title: 'Update Character',
             description: updatedChar
-              ? `✅ Character \`${updatedChar.name}\` updated successfully`
+              ? `✅ Character **${updatedChar.name}** updated successfully`
               : "❌ The given character doesn't exist",
             color: updatedChar ? Colors.Green : Colors.Red,
           },
@@ -190,7 +190,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
           {
             title: 'Delete Character',
             description: deleteRes
-              ? `✅ Character \`${deleteRes.name}\` deleted successfully`
+              ? `✅ Character **${deleteRes.name}** deleted successfully`
               : deleteRes === null
               ? "❌ The given character doesn't exist"
               : '⚠️ Valkyries found for this character, aborting delete. Use `force: true` to delete the character along with the valkyries',

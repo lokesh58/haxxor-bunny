@@ -195,7 +195,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
           embeds: [
             {
               title: 'Create Valkyrie',
-              description: `❌ Valkyrie with name \`${name}\` or acronym as${
+              description: `❌ Valkyrie with name **${name}** or acronym as${
                 acronyms.length > 1 ? ' atleast one of' : ''
               } \`${acronyms.join('`, `')}\` already exists`,
               color: Colors.Red,
@@ -209,7 +209,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
         embeds: [
           {
             title: 'Create Valkyrie',
-            description: `✅ Valkyrie \`${name}\` created successfully`,
+            description: `✅ Valkyrie **${name}** created successfully`,
             color: Colors.Green,
           },
         ],
@@ -333,7 +333,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
         embeds: [
           {
             title: 'Update Valkyrie',
-            description: `✅ Valkyrie ${valk.name} updated successfully`,
+            description: `✅ Valkyrie **${valk.name}** updated successfully`,
             color: Colors.Green,
           },
         ],
@@ -360,7 +360,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
           {
             title: 'Delete Valkyrie',
             description: deleteRes
-              ? `✅ Valkyrie \`${deleteRes.name}\` deleted successfully`
+              ? `✅ Valkyrie **${deleteRes.name}** deleted successfully`
               : deleteRes === null
               ? "❌ The given Valkyrie doesn't exist"
               : '⚠️ User valkyries data found for this valkyrie, aborting delete. Use `force: true` to delete the valkyrie along with the user valkyries data',

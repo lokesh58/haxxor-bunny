@@ -170,8 +170,8 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
             {
               title: 'Update My Valkyrie Data',
               description: deletedUserValk
-                ? `✅ Valkyrie data for \`${valk.name}\` removed successfully`
-                : `❌ Valkyrie data not found for \`${valk.name}\``,
+                ? `✅ Valkyrie data for **${valk.name}** removed successfully`
+                : `❌ Valkyrie data not found for **${valk.name}**`,
               color: deletedUserValk ? Colors.Green : Colors.Red,
             },
           ],
@@ -185,7 +185,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
             embeds: [
               {
                 title: 'Update My Valkyries Data',
-                description: `❌ Battlesuit rank data neither supplied nor present previously for \`${valk.name}\``,
+                description: `❌ Battlesuit rank data neither supplied nor present previously for **${valk.name}**`,
                 color: Colors.Red,
               },
             ],
@@ -215,7 +215,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
         embeds: [
           {
             title: 'Update My Valkyries Data',
-            description: `✅ Valkyrie data for \`${valk.name}\` updated successfully`,
+            description: `✅ Valkyrie data for **${valk.name}** updated successfully`,
             color: Colors.Green,
           },
         ],
@@ -229,16 +229,16 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
       if (ValkyrieRanks.indexOf(userValk.rank) < ValkyrieRanks.indexOf(valk.baseRank)) {
         return {
           valid: false,
-          message: `❌ Battlesuit rank cannot be lower than valkyrie base rank (\`${valk.baseRank.toUpperCase()}\` for \`${
+          message: `❌ Battlesuit rank cannot be lower than valkyrie base rank (\`${valk.baseRank.toUpperCase()}\` for **${
             valk.name
-          }\`)`,
+          }**)`,
         };
       }
       const hasAug = canValkyrieHaveAugment(valk) && !!valk.augEmoji;
       if (!hasAug && userValk.coreRank) {
         return {
           valid: false,
-          message: `❌ Valkyrie \`${valk.name}\` doesn't have an augment`,
+          message: `❌ Valkyrie **${valk.name}** doesn't have an augment`,
         };
       }
       if (hasAug && userValk.coreRank) {
@@ -248,7 +248,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
             valid: false,
             message: `❌ Battlesuit rank must be atleast \`${minReqRank.toUpperCase()}\` to have Augment Core Rank \`${
               userValk.coreRank
-            }\` for \`${valk.name}\``,
+            }\` for **${valk.name}**`,
           };
         }
       }
@@ -311,13 +311,13 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
         const valkRegex = new RegExp(`^${nameOrAcronym}$`, 'i');
         const valk = await Valkyrie.findOne({ $or: [{ name: valkRegex }, { acronyms: valkRegex }] });
         if (!valk) {
-          results.push(`❌ Valkyrie \`${nameOrAcronym}\` doesn't exist`);
+          results.push(`❌ Valkyrie **${nameOrAcronym}** doesn't exist`);
           continue;
         }
         let userValk = await UserValkyrie.findOne({ userId: this.user.id, valkyrie: valk._id });
         if (!userValk) {
           if (!info.rank) {
-            results.push(`❌ Battlesuit rank data neither supplied nor present previously for \`${valk.name}\``);
+            results.push(`❌ Battlesuit rank data neither supplied nor present previously for **${valk.name}**`);
             continue;
           }
           userValk = new UserValkyrie({ valkyrie: valk._id, userId: this.user.id, ...info });
@@ -332,8 +332,8 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
         }
         toSave.push(userValk);
         results.push(
-          `✅ \`${valk.name}\` ${valk.emoji ?? '-'}${info.rank ? ` **${info.rank.toUpperCase()}**` : ''}${
-            info.coreRank ? ` **${info.coreRank}**⭐` : ''
+          `✅ **${valk.name}** ${valk.emoji ?? '-'}${info.rank ? ` \`${info.rank.toUpperCase()}\`` : ''}${
+            info.coreRank ? ` ${info.coreRank}⭐` : ''
           }`,
         );
       }
@@ -369,16 +369,16 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
         const valkRegex = new RegExp(`^${nameOrAcronym}$`, 'i');
         const valk = await Valkyrie.findOne({ $or: [{ name: valkRegex }, { acronyms: valkRegex }] });
         if (!valk) {
-          results.push(`❌ Valkyrie \`${nameOrAcronym}\` doesn't exist`);
+          results.push(`❌ Valkyrie **${nameOrAcronym}** doesn't exist`);
           continue;
         }
         const userValk = await UserValkyrie.findOne({ userId: this.user.id, valkyrie: valk._id });
         if (!userValk) {
-          results.push(`❌ Valkyrie data not found for \`${valk.name}\``);
+          results.push(`❌ Valkyrie data not found for **${valk.name}**`);
           continue;
         }
         toRemove.push(userValk._id);
-        results.push(`✅ Valkyrie data for \`${valk.name}\` removed successfully`);
+        results.push(`✅ Valkyrie data for **${valk.name}** removed successfully`);
       }
       await UserValkyrie.deleteMany({ _id: { $in: toRemove } });
       await this.editOriginalResponse({
