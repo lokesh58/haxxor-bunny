@@ -1,10 +1,10 @@
-import mongoose, { Document, Model, model, models, Schema } from 'mongoose';
+import mongoose, { Document, Model, model, models, Schema, Types } from 'mongoose';
 import { AugmentCoreRanks, ValkyrieRanks } from '../../constants/hi3';
 import { name as ValkyrieModelName } from './Valkyrie';
 
 export interface IUserValkyrie {
   userId: string;
-  valkyrie: Schema.Types.ObjectId;
+  valkyrie: Types.ObjectId;
   rank: typeof ValkyrieRanks[number];
   coreRank?: typeof AugmentCoreRanks[number];
 }

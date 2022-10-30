@@ -1,9 +1,9 @@
-import mongoose, { Document, Model, model, models, Schema } from 'mongoose';
+import mongoose, { Document, Model, model, models, Schema, Types } from 'mongoose';
 import { PossibleAugmentBaseRanks, ValkyrieBaseRanks, ValkyrieNatures } from '../../constants/hi3';
 import { name as CharacterModelName } from './Character';
 
 export type IValkyrie = {
-  character: Schema.Types.ObjectId;
+  character: Types.ObjectId;
   name: string;
   nature: typeof ValkyrieNatures[number];
   acronyms: string[];
@@ -11,6 +11,7 @@ export type IValkyrie = {
 } & (
   | {
       baseRank: typeof ValkyrieBaseRanks[number];
+      augEmoji?: undefined;
     }
   | {
       baseRank: typeof PossibleAugmentBaseRanks[number];

@@ -62,10 +62,10 @@ const ValkyriesCommand: HaxxorBunnyCommand = {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
-      const valk = await Valkyrie.findById(valkyrieId).populate<{ character: Pick<ICharacter, 'name'> }>(
-        'character',
-        'name',
-      );
+      const valk = await Valkyrie.findById(valkyrieId).populate<{ character: Pick<ICharacter, 'name'> }>({
+        path: 'character',
+        select: 'name',
+      });
       if (!valk) {
         await this.editOriginalResponse({
           embeds: [

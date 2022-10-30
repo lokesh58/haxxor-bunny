@@ -11,7 +11,12 @@ import { unknownTypeResp } from '../constants/discord';
 import { AugmentCoreRanks, AugmentCoreRequirements, ValkyrieRanks } from '../constants/hi3';
 import UserValkyrie, { UserValkyrieDocument } from '../models/hi3/UserValkyrie';
 import Valkyrie, { ValkyrieDocument } from '../models/hi3/Valkyrie';
-import { canValkyrieHaveAugment, getValkyriesByKeyword, isValidAugmentCoreRank } from '../utils/hi3';
+import {
+  canValkyrieHaveAugment,
+  getUserValkyrieDisplayEmbeds,
+  getValkyriesByKeyword,
+  isValidAugmentCoreRank,
+} from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -108,12 +113,13 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
     }
 
     private async view(): Promise<void> {
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: '🚧 Work in Progress',
-        },
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
+      const embeds = await getUserValkyrieDisplayEmbeds(this.user.id);
+      for (const embed of embeds) {
+        await this.createFollowup({ embeds: [embed] });
+      }
     }
 
     private async update(): Promise<void> {

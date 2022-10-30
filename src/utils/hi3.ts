@@ -1,17 +1,42 @@
-import { APIEmbed } from 'discord.js';
+import { APIEmbed, RESTGetAPIUserResult, Routes } from 'discord.js';
 import mongoose from 'mongoose';
 import {
   AugmentCoreRanks,
   PossibleAugmentBaseRanks,
   ValkyrieBaseRanks,
+  ValkyrieNatures,
   ValkyrieNaturesDisplay,
 } from '../constants/hi3';
 import Character, { CharacterDocument, ICharacter } from '../models/hi3/Character';
-import UserValkyrie from '../models/hi3/UserValkyrie';
+import UserValkyrie, { IUserValkyrie } from '../models/hi3/UserValkyrie';
 import Valkyrie, { IValkyrie, ValkyrieDocument } from '../models/hi3/Valkyrie';
+import { restClient } from './discord';
 
-const LengthPerEmbed = 48;
+const LengthPerEmbed = 54;
 const ZeroWidthSpace = '​';
+
+export async function getUserValkyrieDisplayEmbeds(userId: string): Promise<APIEmbed[]> {
+  const [userValks, user] = await Promise.all([
+    UserValkyrie.find({ userId }).populate<{ valkyrie: IValkyrie }>({
+      path: 'valkyrie',
+      options: { sort: { character: 1, baseRank: 1, nature: 1 } },
+    }),
+    restClient.get(Routes.user(userId)) as Promise<RESTGetAPIUserResult>,
+  ]);
+  userValks.sort(({ valkyrie: va }, { valkyrie: vb }) => {
+    if (!va.character.equals(vb.character)) {
+      return va.character < vb.character ? -1 : 1;
+    }
+    if (va.baseRank !== vb.baseRank) {
+      return ValkyrieBaseRanks.indexOf(va.baseRank) < ValkyrieBaseRanks.indexOf(vb.baseRank) ? -1 : 1;
+    }
+    return ValkyrieNatures.indexOf(va.nature) <= ValkyrieNatures.indexOf(vb.nature) ? -1 : 1;
+  });
+  return convertToDisplayEmbeds(userValks, UserValkyrieListDisplay, {
+    title: `User Valkyries for ${user.username}#${user.discriminator}`,
+    emptyText: '*No valkyrie data*',
+  });
+}
 
 export function convertToDisplayEmbeds<T>(
   arr: T[],
@@ -44,6 +69,17 @@ export function convertToDisplayEmbeds<T>(
       ...(numEmbeds > 1 ? { footer: { text: `Page ${i + 1} of ${numEmbeds}` } } : {}),
     };
   });
+}
+
+export function UserValkyrieListDisplay(
+  userValkyrie: Omit<IUserValkyrie, 'valkyrie'> & {
+    valkyrie: Pick<IValkyrie, 'name' | 'emoji' | 'nature' | 'augEmoji'>;
+  },
+): string {
+  const { valkyrie, rank, coreRank } = userValkyrie;
+  return `**${valkyrie.name}** ${valkyrie.emoji ?? '-'} ${
+    ValkyrieNaturesDisplay[valkyrie.nature].emoji
+  } \`${rank.toUpperCase()}\`${coreRank ? ` ${valkyrie.augEmoji ?? '-'} ${coreRank}⭐` : ''}`;
 }
 
 export function ValkyrieListDisplay(valkyrie: IValkyrie): string {
