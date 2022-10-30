@@ -1,3 +1,4 @@
+import { APIEmbed } from 'discord.js';
 import mongoose from 'mongoose';
 import {
   AugmentCoreRanks,
@@ -9,14 +10,50 @@ import Character, { CharacterDocument, ICharacter } from '../models/hi3/Characte
 import UserValkyrie from '../models/hi3/UserValkyrie';
 import Valkyrie, { IValkyrie, ValkyrieDocument } from '../models/hi3/Valkyrie';
 
+const LengthPerEmbed = 48;
+const ZeroWidthSpace = '​';
+
+export function convertToDisplayEmbeds<T>(
+  arr: T[],
+  conversionFunc: (arg: T) => string,
+  options: { title: string; emptyText: string },
+): APIEmbed[] {
+  if (arr.length === 0) {
+    return [
+      {
+        title: options.title,
+        description: options.emptyText,
+      },
+    ];
+  }
+  const numEmbeds = Math.ceil(arr.length / LengthPerEmbed);
+  return [...Array(numEmbeds).keys()].map((i) => {
+    const printArr = arr.slice(i * LengthPerEmbed, (i + 1) * LengthPerEmbed);
+    const partSize = Math.ceil(printArr.length / 9);
+    const numParts = Math.ceil(printArr.length / partSize);
+    return {
+      ...(i === 0 ? { title: options.title } : {}),
+      fields: [...Array(numParts).keys()].map((j) => ({
+        name: ZeroWidthSpace,
+        value: printArr
+          .slice(j * partSize, (j + 1) * partSize)
+          .map(conversionFunc)
+          .join('\n'),
+        inline: true,
+      })),
+      ...(numEmbeds > 1 ? { footer: { text: `Page ${i + 1} of ${numEmbeds}` } } : {}),
+    };
+  });
+}
+
 export function ValkyrieListDisplay(valkyrie: IValkyrie): string {
-  return `\`${valkyrie.name}\` ${valkyrie.emoji ?? '-'} \`${valkyrie.acronyms[0]}\` ${
+  return `**${valkyrie.name}** ${valkyrie.emoji ?? '-'} \`${valkyrie.acronyms[0]}\` ${
     ValkyrieNaturesDisplay[valkyrie.nature].emoji
   }${'augEmoji' in valkyrie && valkyrie.augEmoji ? ` ${valkyrie.augEmoji}` : ''}`;
 }
 
 export function CharacterListDisplay(character: ICharacter): string {
-  return `\`${character.name}\`${character.emoji ? ` ${character.emoji}` : ''}`;
+  return `**${character.name}**${character.emoji ? ` ${character.emoji}` : ''}`;
 }
 
 export function isValidAugmentCoreRank(value: number): value is typeof AugmentCoreRanks[number] {

@@ -5,7 +5,7 @@ import { ValkyrieNaturesDisplay } from '../constants/hi3';
 import { ICharacter } from '../models/hi3/Character';
 import Valkyrie from '../models/hi3/Valkyrie';
 import { getEmojiUrl } from '../utils/discord';
-import { getValkyriesByKeyword, ValkyrieListDisplay } from '../utils/hi3';
+import { convertToDisplayEmbeds, getValkyriesByKeyword, ValkyrieListDisplay } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -49,21 +49,23 @@ const ValkyriesCommand: HaxxorBunnyCommand = {
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
       const valks = await Valkyrie.find().sort({ character: 1, baseRank: 1, nature: 1 });
-      await this.editOriginalResponse({
-        embeds: [
-          {
-            title: 'Valkyries',
-            description: valks.length ? valks.map((v) => `• ${ValkyrieListDisplay(v)}`).join('\n') : '*No valkyries*',
-          },
-        ],
+      const embeds = convertToDisplayEmbeds(valks, ValkyrieListDisplay, {
+        title: 'Valkyries',
+        emptyText: '*No valkyries*',
       });
+      for (const embed of embeds) {
+        await this.createFollowup({ embeds: [embed] });
+      }
     }
 
     private async view(valkyrieId: Types.ObjectId): Promise<void> {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
-      const valk = await Valkyrie.findById(valkyrieId).populate<{ character: ICharacter }>('character');
+      const valk = await Valkyrie.findById(valkyrieId).populate<{ character: Pick<ICharacter, 'name'> }>(
+        'character',
+        'name',
+      );
       if (!valk) {
         await this.editOriginalResponse({
           embeds: [

@@ -4,7 +4,12 @@ import { z } from 'zod';
 import Character from '../models/hi3/Character';
 import Valkyrie from '../models/hi3/Valkyrie';
 import { getEmojiUrl } from '../utils/discord';
-import { CharacterListDisplay, getCharactersByKeyword, ValkyrieListDisplay } from '../utils/hi3';
+import {
+  CharacterListDisplay,
+  convertToDisplayEmbeds,
+  getCharactersByKeyword,
+  ValkyrieListDisplay,
+} from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -48,14 +53,13 @@ const CharactersCommand: HaxxorBunnyCommand = {
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
       const chars = await Character.find();
-      await this.editOriginalResponse({
-        embeds: [
-          {
-            title: 'Characters',
-            description: chars.length ? chars.map((c) => `• ${CharacterListDisplay(c)}`).join('\n') : '*No characters*',
-          },
-        ],
+      const embeds = convertToDisplayEmbeds(chars, CharacterListDisplay, {
+        title: 'Characters',
+        emptyText: '*No characters*',
       });
+      for (const embed of embeds) {
+        await this.createFollowup({ embeds: [embed] });
+      }
     }
 
     private async view(characterId: Types.ObjectId): Promise<void> {

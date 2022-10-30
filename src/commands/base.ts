@@ -16,6 +16,8 @@ import {
   RESTGetAPIInteractionOriginalResponseResult,
   RESTPatchAPIInteractionOriginalResponseJSONBody,
   RESTPatchAPIInteractionOriginalResponseResult,
+  RESTPostAPIInteractionFollowupJSONBody,
+  RESTPostAPIInteractionFollowupResult,
   Routes,
 } from 'discord.js';
 import { NextApiResponse } from 'next';
@@ -163,6 +165,18 @@ export abstract class BaseChatInputApplicationCommandHandler extends BaseSlashCo
       },
     );
     return resp as RESTPatchAPIInteractionOriginalResponseResult;
+  }
+
+  protected async createFollowup(
+    body: RESTPostAPIInteractionFollowupJSONBody,
+  ): Promise<RESTPostAPIInteractionFollowupResult> {
+    if (!this.responded) {
+      throw new HaxxorBunnyError('Interaction not responded');
+    }
+    const resp = await restClient.post(Routes.webhook(this.interaction.application_id, this.interaction.token), {
+      body,
+    });
+    return resp as RESTPostAPIInteractionFollowupResult;
   }
 }
 
