@@ -242,7 +242,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
             valid: false,
             message: `❌ Battlesuit rank must be atleast \`${minReqRank.toUpperCase()}\` to have Augment Core Rank \`${
               userValk.coreRank
-            }\``,
+            }\` for \`${valk.name}\``,
           };
         }
       }
@@ -286,11 +286,58 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
             ),
         }),
       );
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: JSON.stringify(args),
-        },
+      const { valks } = args;
+      const valksDataMap = new Map<
+        string,
+        { rank?: typeof ValkyrieRanks[number]; coreRank?: typeof AugmentCoreRanks[number] }
+      >();
+      valks.forEach((valkData) => {
+        const { nameOrAcronym, ...rest } = valkData;
+        valksDataMap.set(nameOrAcronym, { ...valksDataMap.get(nameOrAcronym), ...rest });
+      });
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+      });
+      const results: string[] = [];
+      const toSave: UserValkyrieDocument[] = [];
+      for (const [nameOrAcronym, info] of valksDataMap) {
+        const valkRegex = new RegExp(`^${nameOrAcronym}$`, 'i');
+        const valk = await Valkyrie.findOne({ $or: [{ name: valkRegex }, { acronyms: valkRegex }] });
+        if (!valk) {
+          results.push(`❌ Valkyrie \`${nameOrAcronym}\` doesn't exist`);
+          continue;
+        }
+        let userValk = await UserValkyrie.findOne({ userId: this.user.id, valkyrie: valk._id });
+        if (!userValk) {
+          if (!info.rank) {
+            results.push(`❌ Battlesuit rank data neither supplied nor present previously for \`${valk.name}\``);
+            continue;
+          }
+          userValk = new UserValkyrie({ valkyrie: valk._id, userId: this.user.id, ...info });
+        } else {
+          if (info.rank) userValk.rank = info.rank;
+          if (info.coreRank) userValk.coreRank = info.coreRank;
+        }
+        const validationRes = this.validateUserValkUpdateData(valk, userValk);
+        if (!validationRes.valid) {
+          results.push(validationRes.message);
+          continue;
+        }
+        toSave.push(userValk);
+        results.push(
+          `✅ \`${valk.name}\` ${valk.emoji ?? '-'}${info.rank ? ` **${info.rank.toUpperCase()}**` : ''}${
+            info.coreRank ? ` **${info.coreRank}**⭐` : ''
+          }`,
+        );
+      }
+      await UserValkyrie.bulkSave(toSave);
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'Bulk Add My Valkyries Data',
+            description: results.join('\n'),
+          },
+        ],
       });
     }
 
