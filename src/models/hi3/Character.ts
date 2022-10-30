@@ -2,7 +2,7 @@ import mongoose, { Document, Model, model, models, Schema } from 'mongoose';
 
 export interface ICharacter {
   name: string;
-  emoji?: boolean;
+  emoji?: string;
 }
 
 const charSchema = new Schema<ICharacter>({

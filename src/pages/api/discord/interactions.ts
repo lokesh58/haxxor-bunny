@@ -9,11 +9,8 @@ import {
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { unknownTypeResp } from '../../../constants/discord';
-import {
-  applicationCommandAutocompleteHandler,
-  chatInputApplicationCommandHandler,
-  verifyKey,
-} from '../../../utils/discord';
+import { applicationCommandAutocompleteHandler, chatInputApplicationCommandHandler } from '../../../utils/bot';
+import { verifyKey } from '../../../utils/discord';
 
 export default function discordInteractionsHandler(
   req: NextApiRequest,

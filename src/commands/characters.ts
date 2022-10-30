@@ -1,6 +1,9 @@
-import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
+import { ApplicationCommandOptionType, ApplicationCommandType, Colors, InteractionResponseType } from 'discord.js';
 import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
+import Character from '../models/hi3/Character';
+import Valkyrie from '../models/hi3/Valkyrie';
+import { getEmojiUrl } from '../utils/discord';
 import { getCharactersByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
@@ -33,11 +36,72 @@ const CharactersCommand: HaxxorBunnyCommand = {
             .optional(),
         }),
       );
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: JSON.stringify(args),
-        },
+      const { character } = args;
+      if (character) {
+        return this.view(character);
+      }
+      return this.list();
+    }
+
+    private async list(): Promise<void> {
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+      });
+      const chars = await Character.find();
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'Characters',
+            description: chars.map((c) => `• \`${c.name}\`${c.emoji ? ` ${c.emoji}` : ''}`).join('\n'),
+          },
+        ],
+      });
+    }
+
+    private async view(characterId: Types.ObjectId): Promise<void> {
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+      });
+      const [char, valks] = await Promise.all([
+        Character.findById(characterId),
+        Valkyrie.find({ character: characterId }),
+      ]);
+      if (!char) {
+        await this.editOriginalResponse({
+          embeds: [
+            {
+              title: 'View Character',
+              description: "❌ Given character doesn't exist",
+              color: Colors.Red,
+            },
+          ],
+        });
+        return;
+      }
+      const emojiUrl = getEmojiUrl(char.emoji ?? '');
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'View Character',
+            description: `${char.name}`,
+            ...(emojiUrl && { thumbnail: { url: emojiUrl } }),
+            fields: [
+              {
+                name: 'Valkyries',
+                value: valks.length
+                  ? valks
+                      .map(
+                        (v) =>
+                          `• \`${v.name}\`${v.emoji ? ` ${v.emoji}` : `${'augEmoji' in v && v.augEmoji ? ' -' : ''}`}${
+                            'augEmoji' in v && v.augEmoji ? ` ${v.augEmoji}` : ''
+                          }`,
+                      )
+                      .join('\n')
+                  : `*No Valkyries for \`${char.name}\`*`,
+              },
+            ],
+          },
+        ],
       });
     }
   },
