@@ -4,7 +4,7 @@ import { z } from 'zod';
 import Character from '../models/hi3/Character';
 import Valkyrie from '../models/hi3/Valkyrie';
 import { getEmojiUrl } from '../utils/discord';
-import { getCharactersByKeyword } from '../utils/hi3';
+import { getCharactersByKeyword, ValkyrieListDisplay } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -89,14 +89,7 @@ const CharactersCommand: HaxxorBunnyCommand = {
               {
                 name: 'Valkyries',
                 value: valks.length
-                  ? valks
-                      .map(
-                        (v) =>
-                          `• \`${v.name}\`${v.emoji ? ` ${v.emoji}` : `${'augEmoji' in v && v.augEmoji ? ' -' : ''}`}${
-                            'augEmoji' in v && v.augEmoji ? ` ${v.augEmoji}` : ''
-                          }`,
-                      )
-                      .join('\n')
+                  ? valks.map((v) => `• ${ValkyrieListDisplay(v)}`).join('\n')
                   : `*No Valkyries for \`${char.name}\`*`,
               },
             ],

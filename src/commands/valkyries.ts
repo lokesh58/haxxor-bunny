@@ -1,7 +1,8 @@
 import { ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType } from 'discord.js';
 import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
-import { getValkyriesByKeyword } from '../utils/hi3';
+import Valkyrie from '../models/hi3/Valkyrie';
+import { getValkyriesByKeyword, ValkyrieListDisplay } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -33,13 +34,29 @@ const ValkyriesCommand: HaxxorBunnyCommand = {
             .optional(),
         }),
       );
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: JSON.stringify(args),
-        },
+      const { valk } = args;
+      if (valk) {
+        return this.view(valk);
+      }
+      return this.list();
+    }
+
+    private async list(): Promise<void> {
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+      });
+      const valks = await Valkyrie.find().sort({ character: 1, baseRank: 1, nature: 1 });
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'Valkyries',
+            description: valks.map((v) => `• ${ValkyrieListDisplay(v)}`).join('\n'),
+          },
+        ],
       });
     }
+
+    private async view(valkyrieId: Types.ObjectId): Promise<void> {}
   },
   CommandAutocompleteHandler: class ValkyriesCommandAutocompleteHandler extends BaseApplicationCommandAutocompleteHandler {
     public async handle(): Promise<void> {

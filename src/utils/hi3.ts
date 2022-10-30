@@ -1,8 +1,19 @@
 import mongoose from 'mongoose';
-import { AugmentCoreRanks, PossibleAugmentBaseRanks, ValkyrieBaseRanks } from '../constants/hi3';
+import {
+  AugmentCoreRanks,
+  PossibleAugmentBaseRanks,
+  ValkyrieBaseRanks,
+  ValkyrieNaturesDisplay,
+} from '../constants/hi3';
 import Character, { CharacterDocument } from '../models/hi3/Character';
 import UserValkyrie from '../models/hi3/UserValkyrie';
 import Valkyrie, { IValkyrie, ValkyrieDocument } from '../models/hi3/Valkyrie';
+
+export function ValkyrieListDisplay(valkyrie: ValkyrieDocument): string {
+  return `\`${valkyrie.name}\` ${valkyrie.emoji ?? '-'} \`${valkyrie.acronyms[0]}\` ${
+    ValkyrieNaturesDisplay[valkyrie.nature].emoji
+  }${'augEmoji' in valkyrie && valkyrie.augEmoji ? ` ${valkyrie.augEmoji}` : ''}`;
+}
 
 export function isValidAugmentCoreRank(value: number): value is typeof AugmentCoreRanks[number] {
   return AugmentCoreRanks.includes(value as any);
