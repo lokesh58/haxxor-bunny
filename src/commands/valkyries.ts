@@ -5,7 +5,7 @@ import { ValkyrieNaturesDisplay } from '../constants/hi3';
 import { ICharacter } from '../models/hi3/Character';
 import Valkyrie from '../models/hi3/Valkyrie';
 import { getEmojiUrl } from '../utils/discord';
-import { convertToDisplayEmbeds, getValkyriesByKeyword, ValkyrieListDisplay } from '../utils/hi3';
+import { convertToDisplayEmbeds, getValkyriesByKeyword, valkyrieCompare, ValkyrieListDisplay } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
   BaseChatInputApplicationCommandHandler,
@@ -48,7 +48,8 @@ const ValkyriesCommand: HaxxorBunnyCommand = {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
-      const valks = await Valkyrie.find().sort({ character: 1, baseRank: 1, nature: 1 });
+      const valks = await Valkyrie.find();
+      valks.sort(valkyrieCompare);
       const embeds = convertToDisplayEmbeds(valks, ValkyrieListDisplay, {
         title: 'Valkyries',
         emptyText: '*No valkyries*',

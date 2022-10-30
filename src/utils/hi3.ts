@@ -15,6 +15,16 @@ import { restClient } from './discord';
 const LengthPerEmbed = 54;
 const ZeroWidthSpace = '​';
 
+export function valkyrieCompare(a: IValkyrie, b: IValkyrie): number {
+  if (!a.character.equals(b.character)) {
+    return a.character < b.character ? -1 : 1;
+  }
+  if (a.baseRank !== b.baseRank) {
+    return ValkyrieBaseRanks.indexOf(a.baseRank) < ValkyrieBaseRanks.indexOf(b.baseRank) ? -1 : 1;
+  }
+  return ValkyrieNatures.indexOf(a.nature) <= ValkyrieNatures.indexOf(b.nature) ? -1 : 1;
+}
+
 export async function getUserValkyrieDisplayEmbeds(userId: string): Promise<APIEmbed[]> {
   const [userValks, user] = await Promise.all([
     UserValkyrie.find({ userId }).populate<{ valkyrie: IValkyrie }>({
@@ -23,15 +33,7 @@ export async function getUserValkyrieDisplayEmbeds(userId: string): Promise<APIE
     }),
     restClient.get(Routes.user(userId)) as Promise<RESTGetAPIUserResult>,
   ]);
-  userValks.sort(({ valkyrie: va }, { valkyrie: vb }) => {
-    if (!va.character.equals(vb.character)) {
-      return va.character < vb.character ? -1 : 1;
-    }
-    if (va.baseRank !== vb.baseRank) {
-      return ValkyrieBaseRanks.indexOf(va.baseRank) < ValkyrieBaseRanks.indexOf(vb.baseRank) ? -1 : 1;
-    }
-    return ValkyrieNatures.indexOf(va.nature) <= ValkyrieNatures.indexOf(vb.nature) ? -1 : 1;
-  });
+  userValks.sort((a, b) => valkyrieCompare(a.valkyrie, b.valkyrie));
   return convertToDisplayEmbeds(userValks, UserValkyrieListDisplay, {
     title: `User Valkyries for ${user.username}#${user.discriminator}`,
     emptyText: '*No valkyrie data*',

@@ -8,6 +8,7 @@ import {
   CharacterListDisplay,
   convertToDisplayEmbeds,
   getCharactersByKeyword,
+  valkyrieCompare,
   ValkyrieListDisplay,
 } from '../utils/hi3';
 import HaxxorBunnyCommand, {
@@ -52,7 +53,7 @@ const CharactersCommand: HaxxorBunnyCommand = {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
-      const chars = await Character.find();
+      const chars = await Character.find().sort({ _id: 1 });
       const embeds = convertToDisplayEmbeds(chars, CharacterListDisplay, {
         title: 'Characters',
         emptyText: '*No characters*',
@@ -82,6 +83,7 @@ const CharactersCommand: HaxxorBunnyCommand = {
         });
         return;
       }
+      valks.sort(valkyrieCompare);
       const emojiUrl = getEmojiUrl(char.emoji ?? '');
       await this.editOriginalResponse({
         embeds: [
