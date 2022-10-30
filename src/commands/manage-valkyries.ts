@@ -294,14 +294,37 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
       }
       if (deltaAcronyms) {
         const acronymSet = new Set(valk.acronyms.map((a) => a.toLowerCase()));
+        const newAddedSet = new Set<string>();
         deltaAcronyms.add.forEach((a) => {
           if (!acronymSet.has(a.toLowerCase())) {
+            newAddedSet.add(a);
             valk.acronyms.push(a);
             acronymSet.add(a.toLowerCase());
           }
         });
         const removeSet = new Set(deltaAcronyms.remove.map((a) => a.toLowerCase()));
         valk.acronyms = valk.acronyms.filter((va) => !removeSet.has(va.toLowerCase()));
+        const newAdded = [...newAddedSet].filter((a) => !removeSet.has(a.toLowerCase()));
+        if (
+          newAdded.length > 0 &&
+          (await Valkyrie.exists({
+            _id: { $ne: valk._id },
+            acronyms: new RegExp(`^(${valk.acronyms.join('|')})$`, 'i'),
+          }))
+        ) {
+          await this.editOriginalResponse({
+            embeds: [
+              {
+                title: 'Create Valkyrie',
+                description: `❌ Valkyrie with acronym as${
+                  newAdded.length > 1 ? ' atleast one of' : ''
+                } \`${newAdded.join('`, `')}\` already exists`,
+                color: Colors.Red,
+              },
+            ],
+          });
+          return;
+        }
       }
       if (emoji) valk.emoji = emoji;
       if (canHaveAug && augEmoji) valk.augEmoji = augEmoji;
