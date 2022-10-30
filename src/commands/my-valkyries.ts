@@ -255,6 +255,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
         z.object({
           valks: z
             .string()
+            .max(100, { message: 'Keep the length of input less than 100' })
             .regex(
               new RegExp(
                 `^\\s*(\\w+\\s+)+(${possibleRankAugRanks})(\\s*,\\s*(\\w+\\s+)+(${possibleRankAugRanks}))*\\s*$`,
@@ -346,15 +347,41 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
         z.object({
           valks: z
             .string()
+            .max(100, { message: 'Keep the length of input less than 100' })
             .regex(/^\s*(\w+\s+)*\w+(\s*,\s*(\w+\s+)*\w+)*\s*$/, { message: 'Please use `<valk> (, ...)` notation' })
             .transform((v) => v.trim().split(/\s*,\s*/)),
         }),
       );
-      return this.respond({
-        type: InteractionResponseType.ChannelMessageWithSource,
-        data: {
-          content: JSON.stringify(args),
-        },
+      const { valks: valkNameOrAcronyms } = args;
+      const valkNameOrAcronymsSet = new Set(valkNameOrAcronyms);
+      await this.respond({
+        type: InteractionResponseType.DeferredChannelMessageWithSource,
+      });
+      const results: string[] = [];
+      const toRemove: Types.ObjectId[] = [];
+      for (const nameOrAcronym of valkNameOrAcronymsSet) {
+        const valkRegex = new RegExp(`^${nameOrAcronym}$`, 'i');
+        const valk = await Valkyrie.findOne({ $or: [{ name: valkRegex }, { acronyms: valkRegex }] });
+        if (!valk) {
+          results.push(`❌ Valkyrie \`${nameOrAcronym}\` doesn't exist`);
+          continue;
+        }
+        const userValk = await UserValkyrie.findOne({ userId: this.user.id, valkyrie: valk._id });
+        if (!userValk) {
+          results.push(`❌ Valkyrie data not found for \`${valk.name}\``);
+          continue;
+        }
+        toRemove.push(userValk._id);
+        results.push(`✅ Valkyrie data for \`${valk.name}\` removed successfully`);
+      }
+      await UserValkyrie.deleteMany({ _id: { $in: toRemove } });
+      await this.editOriginalResponse({
+        embeds: [
+          {
+            title: 'Bulk Delete My Valkyries Data',
+            description: results.join('\n'),
+          },
+        ],
       });
     }
   },
