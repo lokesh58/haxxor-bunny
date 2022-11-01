@@ -198,7 +198,6 @@ type Constructor<T extends abstract new (...args: any) => any> = new (
 export default interface HaxxorBunnyCommand {
   data: ApplicationCommandData;
   ownerOnly?: boolean;
-  examples?: [{ command: string; explanation: string }];
   CommandHandler: Constructor<typeof BaseChatInputApplicationCommandHandler>;
   CommandAutocompleteHandler?: Constructor<typeof BaseApplicationCommandAutocompleteHandler>;
 }

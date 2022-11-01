@@ -15,6 +15,37 @@
   margin-left: 1rem;
 }
 
+.commands {
+  list-style: none;
+  padding-left: 1rem;
+}
+
+.commands > li {
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.ownerTag {
+  background-color: turquoise;
+  border-radius: 8px;
+  margin-left: 0.5rem;
+  padding: 0.25rem;
+}
+
+.commands details > :not(summary):not(ul) {
+  padding-left: 1rem;
+}
+
+.argument > .name {
+  background-color: lightcyan;
+  border-radius: 8px;
+  padding: 0.25rem;
+}
+
+.argument > .description {
+  margin-left: 0.5rem;
+}
+
 .links a {
   background-color: lightblue;
   border-radius: 8px;
@@ -32,6 +63,14 @@
 }
 
 @media (prefers-color-scheme: dark) {
+  .ownerTag {
+    background-color: darkolivegreen;
+  }
+
+  .argument > .name {
+    background-color: gray;
+  }
+
   .links a {
     background-color: darkcyan;
     color: white;
