@@ -5,6 +5,11 @@ body {
   padding: 0;
 }
 
+summary {
+  cursor: pointer;
+  width: fit-content;
+}
+
 * {
   box-sizing: border-box;
 }
