@@ -101,7 +101,7 @@ const Home: NextPage<HomeProps> = ({ commandDisplayData }) => {
                           })}
                         </ul>
                       ) : (
-                        <ul className={styles.argList}>
+                        <ul className={styles.commands}>
                           {data.options.map((o) => {
                             if (o.type === 1 || o.type === 2) return null;
                             const { name, description, required = false } = o;
