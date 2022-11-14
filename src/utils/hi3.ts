@@ -29,7 +29,6 @@ export async function getUserValkyrieDisplayEmbeds(userId: string): Promise<APIE
   const [userValks, user] = await Promise.all([
     UserValkyrie.find({ userId }).populate<{ valkyrie: IValkyrie }>({
       path: 'valkyrie',
-      options: { sort: { character: 1, baseRank: 1, nature: 1 } },
     }),
     restClient.get(Routes.user(userId)) as Promise<RESTGetAPIUserResult>,
   ]);
