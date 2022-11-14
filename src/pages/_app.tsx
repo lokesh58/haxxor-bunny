@@ -3,6 +3,7 @@ import Head from 'next/head';
 import NavBar from '../components/nav-bar';
 import { BotName } from '../constants';
 import '../styles/globals.css';
+import { trpc } from '../utils/trpc';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -19,4 +20,4 @@ function MyApp({ Component, pageProps }: AppProps) {
   );
 }
 
-export default MyApp;
+export default trpc.withTRPC(MyApp);
