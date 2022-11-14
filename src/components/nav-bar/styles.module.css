@@ -1,5 +1,5 @@
 .navBar {
-  backdrop-filter: blur(15px) brightness(75%) saturate(70%);
+  backdrop-filter: blur(4px);
   background-color: rgba(200, 200, 200, 0.5);
   display: flex;
   padding: 0.5rem;
