@@ -1,0 +1,44 @@
+.navBar {
+  backdrop-filter: blur(15px) brightness(75%) saturate(70%);
+  background-color: rgba(200, 200, 200, 0.5);
+  display: flex;
+  padding: 0.5rem;
+  position: sticky;
+  top: 0;
+}
+
+.leftNav {
+  display: flex;
+  gap: 1rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navItem {
+  color: rgb(50, 50, 50);
+  font-size: 1.25rem;
+}
+
+.navLink {
+  color: inherit;
+  text-decoration: none;
+}
+
+.navLink:hover {
+  color: black;
+}
+
+@media (prefers-color-scheme: dark) {
+  .navBar {
+    background-color: rgba(100, 100, 100, 0.5);
+  }
+
+  .navItem {
+    color: lightgray;
+  }
+
+  .navLink:hover {
+    color: white;
+  }
+}
