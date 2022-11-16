@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import type { FC } from 'react';
 import { trpc } from '../../utils/trpc';
+import styles from './styles.module.css';
 
 const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
   const { data, error, status } = trpc.getUserValkyries.useQuery(
@@ -19,11 +20,11 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
       return (
         <div>
           <h3>{userTag}</h3>
-          <div>
+          <div className={styles.valkyrieContainer}>
             {valkyries.map((v) => {
-              const valkImgSize = 20;
+              const valkImgSize = 100;
               return (
-                <div key={`${v.name}-${v.rank}-${v.augmentCoreRank}`}>
+                <div key={`${v.name}-${v.rank}-${v.augmentCoreRank}`} className={styles.valkyrieCard}>
                   {v.picUrl ? <Image src={v.picUrl} alt={v.name} height={valkImgSize} width={valkImgSize} /> : null}
                   <p>{v.name}</p>
                   <p>{v.rank}</p>

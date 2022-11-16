@@ -1,0 +1,16 @@
+.valkyrieContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.valkyrieCard {
+  border: 1px solid black;
+  padding: 0.5rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .valkyrieCard {
+    border: 1px solid white;
+  }
+}
