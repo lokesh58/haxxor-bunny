@@ -29,7 +29,7 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
                 <div key={`${v.name}-${v.rank}-${v.augmentCoreRank}`} className={styles.valkyrieCard}>
                   <div className={styles.images}>
                     <Image
-                      src={v.picUrl ?? ''}
+                      src={v.picUrl ?? '/images/unknown.png'}
                       alt=""
                       height={valkImgSize}
                       width={valkImgSize}
@@ -56,17 +56,19 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
                         aria-label="rank"
                         height={rankIconsSize}
                         width={rankIconsSize}
+                        objectFit="contain"
                       />
                       <span className={styles.value}>{v.rank}</span>
                     </div>
                     {v.augmentCoreRank ? (
                       <div className={styles.battlesuitRank}>
                         <Image
-                          src={v.augmentPicUrl ?? ''}
+                          src={v.augmentPicUrl ?? '/images/unknown.png'}
                           alt=""
                           aria-label="augment core rank"
                           height={rankIconsSize}
                           width={rankIconsSize}
+                          objectFit="contain"
                         />
                         <span className={styles.value}>{v.augmentCoreRank}</span>
                       </div>
