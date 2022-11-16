@@ -57,9 +57,20 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
                         height={rankIconsSize}
                         width={rankIconsSize}
                       />
-                      <span className={styles.value}>{v.rank.toUpperCase()}</span>
+                      <span className={styles.value}>{v.rank}</span>
                     </div>
-                    {v.augmentCoreRank ? <span>{v.augmentCoreRank}</span> : null}
+                    {v.augmentCoreRank ? (
+                      <div className={styles.battlesuitRank}>
+                        <Image
+                          src={v.augmentPicUrl ?? ''}
+                          alt=""
+                          aria-label="augment core rank"
+                          height={rankIconsSize}
+                          width={rankIconsSize}
+                        />
+                        <span className={styles.value}>{v.augmentCoreRank}</span>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               );

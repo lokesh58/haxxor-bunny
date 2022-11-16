@@ -8,11 +8,11 @@
   align-items: center;
   background-color: rgb(240, 240, 240);
   border-radius: 8px;
-  box-shadow: -1px 1px black;
+  box-shadow: 1px 1px black;
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
-  width: 150px;
+  width: 180px;
   margin: 0 auto;
 }
 
@@ -45,12 +45,11 @@
 }
 
 .battlesuitRank .value {
-  background-color: rgb(220, 220, 0);
+  background-color: aquamarine;
   border-radius: 0 4px 4px 8px;
   box-shadow: 1px 1px black;
-  color: gray;
   font-weight: 600;
-  padding-left: 1.2rem;
+  padding-left: 1.5rem;
   padding-right: 0.4rem;
   margin-left: -1.3rem;
 }
@@ -58,10 +57,11 @@
 @media (prefers-color-scheme: dark) {
   .valkyrieCard {
     background-color: rgb(40, 40, 40);
-    box-shadow: -1px 1px white;
+    box-shadow: 1px 1px white;
   }
 
   .battlesuitRank .value {
+    background-color: dodgerblue;
     box-shadow: 1px 1px white;
   }
 }

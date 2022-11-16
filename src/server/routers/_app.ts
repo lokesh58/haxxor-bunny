@@ -22,7 +22,8 @@ export const appRouter = router({
         return {
           name: uv.valkyrie.name,
           picUrl: getEmojiUrl(uv.valkyrie.emoji ?? ''),
-          rank: uv.rank,
+          augmentPicUrl: getEmojiUrl(uv.valkyrie.augEmoji ?? ''),
+          rank: uv.rank.toUpperCase(),
           augmentCoreRank: uv.coreRank ?? null,
           nature: { display: valkNature.display, picUrl: getEmojiUrl(valkNature.emoji) },
         };
