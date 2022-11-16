@@ -19,17 +19,18 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
       const { userTag, valkyries } = data;
       return (
         <div>
-          <h3>{userTag}</h3>
+          <h3>Valkyries Registered by {userTag}</h3>
           <div className={styles.valkyrieContainer}>
             {valkyries.map((v) => {
               const valkImgSize = 100;
               const natureImgSize = 40;
+              const rankIconsSize = 40;
               return (
                 <div key={`${v.name}-${v.rank}-${v.augmentCoreRank}`} className={styles.valkyrieCard}>
                   <div className={styles.images}>
                     <Image
                       src={v.picUrl ?? ''}
-                      alt={v.name}
+                      alt=""
                       height={valkImgSize}
                       width={valkImgSize}
                       objectFit="contain"
@@ -38,7 +39,7 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
                     <div className={styles.natureImg}>
                       <Image
                         src={v.nature.picUrl ?? ''}
-                        alt={v.nature.display}
+                        alt=""
                         height={natureImgSize}
                         width={natureImgSize}
                         objectFit="contain"
@@ -46,12 +47,19 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
                       />
                     </div>
                   </div>
-                  <div>
-                    <p className={styles.valkyrieName}>{v.name}</p>
-                    <p className={styles.rankInfo}>
-                      <span>{v.rank.toUpperCase()}</span>
-                      {v.augmentCoreRank ? <span>{v.augmentCoreRank}</span> : null}
-                    </p>
+                  <p className={styles.valkyrieName}>{v.name}</p>
+                  <div className={styles.rankInfo}>
+                    <div className={styles.battlesuitRank}>
+                      <Image
+                        src="/images/star.png"
+                        alt=""
+                        aria-label="rank"
+                        height={rankIconsSize}
+                        width={rankIconsSize}
+                      />
+                      <span className={styles.value}>{v.rank.toUpperCase()}</span>
+                    </div>
+                    {v.augmentCoreRank ? <span>{v.augmentCoreRank}</span> : null}
                   </div>
                 </div>
               );
