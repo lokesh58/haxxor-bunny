@@ -13,7 +13,7 @@ function MyApp({ Component, pageProps }: AppProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <NavBar />
-      <main style={{ padding: '0 1.5rem' }}>
+      <main style={{ padding: '0.5rem 1.5rem' }}>
         <Component {...pageProps} />
       </main>
     </>

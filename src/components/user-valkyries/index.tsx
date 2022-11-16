@@ -23,12 +23,36 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
           <div className={styles.valkyrieContainer}>
             {valkyries.map((v) => {
               const valkImgSize = 100;
+              const natureImgSize = 40;
               return (
                 <div key={`${v.name}-${v.rank}-${v.augmentCoreRank}`} className={styles.valkyrieCard}>
-                  {v.picUrl ? <Image src={v.picUrl} alt={v.name} height={valkImgSize} width={valkImgSize} /> : null}
-                  <p>{v.name}</p>
-                  <p>{v.rank}</p>
-                  {v.augmentCoreRank ? <p>{v.augmentCoreRank}</p> : null}
+                  <div className={styles.images}>
+                    <Image
+                      src={v.picUrl ?? ''}
+                      alt={v.name}
+                      height={valkImgSize}
+                      width={valkImgSize}
+                      objectFit="contain"
+                      title={v.name}
+                    />
+                    <div className={styles.natureImg}>
+                      <Image
+                        src={v.nature.picUrl ?? ''}
+                        alt={v.nature.display}
+                        height={natureImgSize}
+                        width={natureImgSize}
+                        objectFit="contain"
+                        title={v.nature.display}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <p className={styles.valkyrieName}>{v.name}</p>
+                    <p className={styles.rankInfo}>
+                      <span>{v.rank.toUpperCase()}</span>
+                      {v.augmentCoreRank ? <span>{v.augmentCoreRank}</span> : null}
+                    </p>
+                  </div>
                 </div>
               );
             })}
