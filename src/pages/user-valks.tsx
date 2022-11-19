@@ -20,7 +20,7 @@ const UserValksPage: NextPage<{ userId?: string }> = ({ userId }) => {
     <>
       <form onSubmit={handleSubmit} className={styles.userForm}>
         <label htmlFor="userId">
-          <FaUser aria-label="Enter Discord User ID" className={styles.userIcon} />
+          <FaUser aria-label="Enter Discord User ID" title="Discord User ID" className={styles.userIcon} />
         </label>
         <div className={styles.searchBar}>
           <input
