@@ -1,6 +1,6 @@
 export const BotName = 'Haxxor Bunny';
 
-export const BotHomepageUrl = `https://${process.env.RAILWAY_STATIC_URL ?? `localhost:${process.env.PORT ?? 3000}`}`;
+export const BotHomepageUrl = 'https://haxxor-bunny.up.railway.app/';
 
 export const InternalBotInviteUrl = '/invite';
 
