@@ -73,10 +73,11 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
         </div>
       );
     case 'error':
+      const errorIconSize = 30;
       return (
         <div className={styles.errorCard}>
           <span className={styles.errorIcon}>
-            <FaExclamationCircle size={30} />
+            <FaExclamationCircle size={errorIconSize} />
           </span>
           <p>{error.message}</p>
         </div>
