@@ -64,6 +64,25 @@
   margin-left: -1.3rem;
 }
 
+.errorCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem auto;
+  background-color: rgba(220, 0, 0, 0.3);
+  border-radius: 8px;
+  width: fit-content;
+  padding: 1rem;
+}
+
+.errorIcon {
+  color: red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (prefers-color-scheme: dark) {
   .valkyrieCard {
     background-color: rgb(40, 40, 40);

@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import type { FC } from 'react';
-import { FaStar } from 'react-icons/fa';
+import { FaExclamationCircle, FaStar } from 'react-icons/fa';
 import { trpc } from '../../utils/trpc';
 import styles from './styles.module.css';
 
@@ -14,8 +14,6 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
     },
   );
   switch (status) {
-    case 'error':
-      return <code>{error.message}</code>;
     case 'success':
       const { userTag, valkyries } = data;
       return (
@@ -72,6 +70,15 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
               );
             })}
           </div>
+        </div>
+      );
+    case 'error':
+      return (
+        <div className={styles.errorCard}>
+          <span className={styles.errorIcon}>
+            <FaExclamationCircle size={30} />
+          </span>
+          <p>{error.message}</p>
         </div>
       );
     case 'loading':
