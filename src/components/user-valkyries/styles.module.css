@@ -83,6 +83,13 @@
   justify-content: center;
 }
 
+.spinnerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
 @media (prefers-color-scheme: dark) {
   .valkyrieCard {
     background-color: rgb(40, 40, 40);

@@ -2,6 +2,7 @@ import Image from 'next/image';
 import type { FC } from 'react';
 import { FaExclamationCircle, FaStar } from 'react-icons/fa';
 import { trpc } from '../../utils/trpc';
+import Spinner from '../spinner';
 import styles from './styles.module.css';
 
 const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
@@ -83,7 +84,11 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
         </div>
       );
     case 'loading':
-      return <code>{'Loading...'}</code>;
+      return (
+        <div className={styles.spinnerContainer}>
+          <Spinner />
+        </div>
+      );
     default:
       return null;
   }
