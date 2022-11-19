@@ -1,0 +1,39 @@
+.userForm {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.userIcon {
+  display: flex;
+  align-items: center;
+  height: 36px;
+  font-size: x-large;
+}
+
+.searchBar {
+  align-items: center;
+  display: flex;
+}
+
+.userIdInput,
+.searchButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  font-size: large;
+  height: 36px;
+}
+
+.searchButton {
+  border: none;
+  background-color: aqua;
+}
+
+@media (prefers-color-scheme: dark) {
+  .searchButton {
+    background-color: darkcyan;
+  }
+}

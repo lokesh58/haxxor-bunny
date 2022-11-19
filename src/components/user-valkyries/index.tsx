@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import type { FC } from 'react';
+import { FaStar } from 'react-icons/fa';
 import { trpc } from '../../utils/trpc';
 import styles from './styles.module.css';
 
@@ -19,12 +20,12 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
       const { userTag, valkyries } = data;
       return (
         <div>
-          <h3>Valkyries Registered by {userTag}</h3>
+          <h3 className={styles.title}>Valkyries Registered by {userTag}</h3>
           <div className={styles.valkyrieContainer}>
             {valkyries.map((v) => {
               const valkImgSize = 100;
               const natureImgSize = 40;
-              const rankIconsSize = 40;
+              const rankIconsSize = 34;
               return (
                 <div key={`${v.name}-${v.rank}-${v.augmentCoreRank}`} className={styles.valkyrieCard}>
                   <div className={styles.images}>
@@ -50,14 +51,7 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
                   <p className={styles.valkyrieName}>{v.name}</p>
                   <div className={styles.rankInfo}>
                     <div className={styles.battlesuitRank}>
-                      <Image
-                        src="/images/star.png"
-                        alt=""
-                        aria-label="rank"
-                        height={rankIconsSize}
-                        width={rankIconsSize}
-                        objectFit="contain"
-                      />
+                      <FaStar size={rankIconsSize} className={styles.starIcon} />
                       <span className={styles.value}>{v.rank}</span>
                     </div>
                     {v.augmentCoreRank ? (
@@ -82,6 +76,8 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
       );
     case 'loading':
       return <code>{'Loading...'}</code>;
+    default:
+      return null;
   }
 };
 

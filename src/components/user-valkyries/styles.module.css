@@ -1,3 +1,8 @@
+.title {
+  display: flex;
+  justify-content: center;
+}
+
 .valkyrieContainer {
   display: flex;
   flex-wrap: wrap;
@@ -12,7 +17,7 @@
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
-  width: 180px;
+  width: 150px;
   margin: 0 auto;
 }
 
@@ -42,6 +47,11 @@
   align-items: center;
   display: flex;
   justify-content: center;
+}
+
+.starIcon {
+  color: gold;
+  z-index: 1;
 }
 
 .battlesuitRank .value {
