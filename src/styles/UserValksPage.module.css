@@ -5,6 +5,13 @@
   justify-content: center;
 }
 
+.center {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .userIcon {
   display: flex;
   align-items: center;
@@ -27,9 +34,14 @@
   height: 36px;
 }
 
+.userIdInput {
+  border-style: double;
+}
+
 .searchButton {
   border: none;
   background-color: aqua;
+  cursor: pointer;
 }
 
 @media (prefers-color-scheme: dark) {
