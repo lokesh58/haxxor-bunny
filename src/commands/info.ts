@@ -1,5 +1,6 @@
 import { ApplicationCommandType, InteractionResponseType, SnowflakeUtil } from 'discord.js';
 import { BotHomepageUrl, BotInviteUrl, BotName } from '../constants';
+import { getBaseAppUrl } from '../utils';
 import HaxxorBunnyCommand, { BaseChatInputApplicationCommandHandler } from './base';
 
 const InfoCommand: HaxxorBunnyCommand = {
@@ -18,8 +19,8 @@ const InfoCommand: HaxxorBunnyCommand = {
       const interactionRespondedTs = SnowflakeUtil.timestampFrom(msg.id);
       const latency = interactionRespondedTs - interactionCreatedTs;
       const infos = [
-        `🏠 **Homepage:** ${BotHomepageUrl}`,
-        `🔗 **Invite URL:** ${BotInviteUrl}`,
+        `🏠 **Homepage:** ${new URL(BotHomepageUrl, getBaseAppUrl())}`,
+        `🔗 **Invite URL:** ${new URL(BotInviteUrl, getBaseAppUrl())}`,
         `⌛ **Roundtrip Latency:** ${latency}ms`,
       ];
       this.editOriginalResponse({
