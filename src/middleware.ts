@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ExternalBotInviteUrl, InternalBotInviteUrl } from './constants';
+import { BotInviteUrl, ExternalBotInviteUrl } from './constants';
 
 export default async function middleware(request: NextRequest) {
-  // Handle Bot Internal Invite Link
-  if (request.nextUrl.pathname === InternalBotInviteUrl) {
+  // Handle Bot Invite Link (internal URL => discord URL)
+  if (request.nextUrl.pathname === BotInviteUrl) {
     return NextResponse.redirect(ExternalBotInviteUrl);
   }
   return NextResponse.next();
