@@ -7,10 +7,12 @@ import {
 } from 'discord.js';
 import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
+import { UserValksUrl } from '../constants';
 import { unknownTypeResp } from '../constants/discord';
 import { AugmentCoreRanks, AugmentCoreRequirements, ValkyrieRanks } from '../constants/hi3';
 import UserValkyrie, { UserValkyrieDocument } from '../models/hi3/UserValkyrie';
 import Valkyrie, { ValkyrieDocument } from '../models/hi3/Valkyrie';
+import { getBaseAppUrl } from '../utils';
 import {
   canValkyrieHaveAugment,
   getUserValkyrieDisplayEmbeds,
@@ -32,6 +34,11 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
         type: ApplicationCommandOptionType.Subcommand,
         name: 'view',
         description: 'View all your valkyries',
+      },
+      {
+        type: ApplicationCommandOptionType.Subcommand,
+        name: 'share',
+        description: 'Get a URL to share your valkyries with others',
       },
       {
         type: ApplicationCommandOptionType.Subcommand,
@@ -101,6 +108,8 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
       switch (subcommad?.name) {
         case 'view':
           return this.view();
+        case 'share':
+          return this.share();
         case 'update':
           return this.update();
         case 'add-many':
@@ -120,6 +129,25 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
       for (const embed of embeds) {
         await this.createFollowup({ embeds: [embed] });
       }
+    }
+
+    private async share(): Promise<void> {
+      const shareUrl = new URL(UserValksUrl, getBaseAppUrl());
+      shareUrl.searchParams.append('userId', this.user.id);
+      return this.respond({
+        type: InteractionResponseType.ChannelMessageWithSource,
+        data: {
+          embeds: [
+            {
+              title: 'Share Your Valkyries',
+              description: [
+                '⬇️ Use the below URL for sharing your registered valkyries with others',
+                shareUrl.href,
+              ].join('\n'),
+            },
+          ],
+        },
+      });
     }
 
     private async update(): Promise<void> {

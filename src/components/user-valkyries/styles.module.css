@@ -1,0 +1,103 @@
+.title {
+  display: flex;
+  justify-content: center;
+}
+
+.valkyrieContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.valkyrieCard {
+  align-items: center;
+  background-color: rgb(240, 240, 240);
+  border-radius: 8px;
+  box-shadow: 1px 1px black;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+  width: 150px;
+  margin: 0 auto;
+}
+
+.images {
+  position: relative;
+}
+
+.natureImg {
+  position: absolute;
+  bottom: -10px;
+  right: -10px;
+}
+
+.valkyrieName {
+  text-align: center;
+}
+
+.rankInfo {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.battlesuitRank {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.starIcon {
+  color: gold;
+  z-index: 1;
+}
+
+.battlesuitRank .value {
+  background-color: aquamarine;
+  border-radius: 0 4px 4px 8px;
+  box-shadow: 1px 1px black;
+  font-weight: 600;
+  padding-left: 1.5rem;
+  padding-right: 0.4rem;
+  margin-left: -1.3rem;
+}
+
+.errorCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin: 1rem auto;
+  background-color: rgba(220, 0, 0, 0.3);
+  border-radius: 8px;
+  width: fit-content;
+  padding: 1rem;
+}
+
+.errorIcon {
+  color: red;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinnerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  .valkyrieCard {
+    background-color: rgb(40, 40, 40);
+    box-shadow: 1px 1px white;
+  }
+
+  .battlesuitRank .value {
+    background-color: dodgerblue;
+    box-shadow: 1px 1px white;
+  }
+}

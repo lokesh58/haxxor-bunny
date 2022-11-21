@@ -1,0 +1,80 @@
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100px;
+  width: 100px;
+  position: relative;
+  --color: 0, 0, 0;
+  animation: fade 2s linear infinite alternate;
+}
+
+.sector {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  border: 10px solid transparent;
+  border-radius: 50%;
+  animation: spin var(--duration) var(--timing-function) infinite;
+  mix-blend-mode: overlay;
+}
+
+.red {
+  border-left-color: lightcoral;
+  --duration: 1.5s;
+  --timing-function: ease-in-out;
+}
+
+.blue {
+  border-top-color: lightblue;
+  --duration: 2s;
+  --timing-function: ease-in;
+}
+
+.green {
+  border-right-color: lightgreen;
+  --duration: 2.5s;
+  --timing-function: ease-out;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade {
+  0% {
+    color: rgba(var(--color), 1);
+  }
+
+  50% {
+    color: rgba(var(--color), 0.5);
+  }
+
+  100% {
+    color: rgba(var(--color), 0.1);
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .spinner {
+    --color: 255, 255, 255;
+  }
+
+  .red {
+    border-top-color: crimson;
+  }
+
+  .blue {
+    border-top-color: darkblue;
+  }
+
+  .green {
+    border-right-color: darkgreen;
+  }
+}

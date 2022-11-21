@@ -1,0 +1,22 @@
+.footer {
+  background-color: darkturquoise;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  margin-top: auto;
+  z-index: 100;
+  font-size: small;
+}
+
+.footer p {
+  margin: 0;
+  text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .footer {
+    background-color: darkslategrey;
+  }
+}
