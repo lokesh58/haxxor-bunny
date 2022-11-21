@@ -140,10 +140,9 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
           embeds: [
             {
               title: 'Share Your Valkyries',
-              description: [
-                '⬇️ Use the below URL for sharing your registered valkyries with others',
-                shareUrl.href,
-              ].join('\n'),
+              description: ['*Share this URL for sharing your registered valkyries with others*', shareUrl.href].join(
+                '\n',
+              ),
             },
           ],
         },
