@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import { FormEvent, useEffect, useState } from 'react';
 import { FaSearch, FaUser } from 'react-icons/fa';
 import UserValkyries from '../components/user-valkyries';
+import { UserValksUrl } from '../constants';
 import styles from '../styles/UserValksPage.module.css';
 
 const UserValksPage: NextPage<{ userId?: string }> = ({ userId }) => {
@@ -15,7 +16,7 @@ const UserValksPage: NextPage<{ userId?: string }> = ({ userId }) => {
   const handleSubmit = (e: FormEvent): void => {
     e.preventDefault();
     router.push({
-      pathname: router.pathname,
+      pathname: UserValksUrl,
       query: { userId: userIdInput },
     });
   };

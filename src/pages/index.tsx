@@ -2,7 +2,7 @@ import { GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
 import commands from '../commands';
 import HaxxorBunnyCommand from '../commands/base';
-import { BotInviteUrl, BotName } from '../constants';
+import { BotInviteUrl, BotName, BotSupportServerInviteLink } from '../constants';
 import styles from '../styles/Home.module.css';
 
 type HomeProps = {
@@ -27,7 +27,7 @@ const Home: NextPage<HomeProps> = ({ commandDisplayData }) => {
         <a href={BotInviteUrl} target="_blank" rel="noreferrer">
           Invite Me!
         </a>
-        <a href="https://discord.gg/h9bHnxX9XK" target="_blank" rel="noreferrer">
+        <a href={BotSupportServerInviteLink} target="_blank" rel="noreferrer">
           Support Server
         </a>
       </div>
