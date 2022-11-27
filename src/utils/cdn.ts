@@ -6,7 +6,11 @@ import type { CDNFileDocument } from '../models/CDNFile';
 import CDNFile from '../models/CDNFile';
 import { getEmojiUrl } from './discord';
 
-export async function uploadDiscordEmojiToCDN(emoji: string): Promise<void> {
+export async function uploadDiscordEmojiToCDN(
+  emoji: string,
+  { upsert = false }: { upsert?: boolean } = {},
+): Promise<boolean> {
+  if (!upsert && (await CDNFile.exists({ filename: emoji }))) return false;
   const emojiUrl = getEmojiUrl(emoji);
   if (!emojiUrl) {
     throw new HaxxorBunnyError('Invalid Emoji');
@@ -21,6 +25,7 @@ export async function uploadDiscordEmojiToCDN(emoji: string): Promise<void> {
     },
     { upsert: true },
   );
+  return true;
 }
 
 export async function getFile(filename: string): Promise<CDNFileDocument | null> {

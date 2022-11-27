@@ -10,7 +10,7 @@ async function main() {
     await mongoose.connect(process.env.MONGODB_URI!);
     console.log('Connected to MongoDB');
     console.log(`Uploading Emoji ${emoji} to DB`);
-    await uploadDiscordEmojiToCDN(emoji);
+    await uploadDiscordEmojiToCDN(emoji, { upsert: true });
     console.log('Upload complete!');
   } finally {
     await mongoose.connection.close();
