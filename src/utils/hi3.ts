@@ -1,5 +1,5 @@
 import { APIEmbed, RESTGetAPIUserResult, Routes } from 'discord.js';
-import mongoose from 'mongoose';
+import mongoose, { isObjectIdOrHexString } from 'mongoose';
 import {
   AugmentCoreRanks,
   PossibleAugmentBaseRanks,
@@ -72,12 +72,24 @@ export function convertToDisplayEmbeds<T>(
   });
 }
 
+type IValkyrieReq = Pick<IValkyrie, 'name' | 'emoji' | 'nature' | 'augEmoji'>;
+
+export function UserValkyrieListDisplay(userValkyrie: IUserValkyrie, valkyrie: IValkyrieReq): string;
 export function UserValkyrieListDisplay(
   userValkyrie: Omit<IUserValkyrie, 'valkyrie'> & {
-    valkyrie: Pick<IValkyrie, 'name' | 'emoji' | 'nature' | 'augEmoji'>;
+    valkyrie: IValkyrieReq;
   },
+): string;
+export function UserValkyrieListDisplay(
+  userValkyrie:
+    | (Omit<IUserValkyrie, 'valkyrie'> & {
+        valkyrie: IValkyrieReq;
+      })
+    | IUserValkyrie,
+  _valkyrie?: IValkyrieReq,
 ): string {
-  const { valkyrie, rank, coreRank } = userValkyrie;
+  const { rank, coreRank } = userValkyrie;
+  const valkyrie = isObjectIdOrHexString(userValkyrie.valkyrie) ? _valkyrie! : (userValkyrie.valkyrie as IValkyrieReq);
   return `**${valkyrie.name}** ${valkyrie.emoji ?? '-'} ${
     ValkyrieNaturesDisplay[valkyrie.nature].emoji
   } \`${rank.toUpperCase()}\`${coreRank ? ` ${valkyrie.augEmoji ?? '-'} ${coreRank}⭐` : ''}`;
