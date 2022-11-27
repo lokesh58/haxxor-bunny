@@ -3,7 +3,8 @@ import { z } from 'zod';
 import { ValkyrieNaturesDisplay } from '../../constants/hi3';
 import UserValkyrie from '../../models/hi3/UserValkyrie';
 import { IValkyrie } from '../../models/hi3/Valkyrie';
-import { getEmojiUrl, restClient } from '../../utils/discord';
+import { getFileUrl } from '../../utils/cdn';
+import { restClient } from '../../utils/discord';
 import { valkyrieCompare } from '../../utils/hi3';
 import { publicProcedure, router } from '../trpc';
 
@@ -21,11 +22,11 @@ export const appRouter = router({
         const valkNature = ValkyrieNaturesDisplay[uv.valkyrie.nature];
         return {
           name: uv.valkyrie.name,
-          picUrl: getEmojiUrl(uv.valkyrie.emoji ?? ''),
-          augmentPicUrl: getEmojiUrl(uv.valkyrie.augEmoji ?? ''),
+          picUrl: uv.valkyrie.emoji ? getFileUrl(uv.valkyrie.emoji) : null,
+          augmentPicUrl: uv.valkyrie.augEmoji ? getFileUrl(uv.valkyrie.augEmoji) : null,
           rank: uv.rank.toUpperCase(),
           augmentCoreRank: uv.coreRank ?? null,
-          nature: { display: valkNature.display, picUrl: getEmojiUrl(valkNature.emoji) },
+          nature: { display: valkNature.display, picUrl: getFileUrl(valkNature.emoji) },
         };
       }),
       userTag: `${user.username}#${user.discriminator}`,
