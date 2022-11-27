@@ -1,5 +1,5 @@
-import { APIEmbed, RESTGetAPIUserResult, Routes } from 'discord.js';
-import mongoose from 'mongoose';
+import { APIEmbed, Colors, RESTGetAPIUserResult, Routes } from 'discord.js';
+import mongoose, { isObjectIdOrHexString } from 'mongoose';
 import {
   AugmentCoreRanks,
   PossibleAugmentBaseRanks,
@@ -10,7 +10,7 @@ import {
 import Character, { CharacterDocument, ICharacter } from '../models/hi3/Character';
 import UserValkyrie, { IUserValkyrie } from '../models/hi3/UserValkyrie';
 import Valkyrie, { IValkyrie, ValkyrieDocument } from '../models/hi3/Valkyrie';
-import { restClient } from './discord';
+import { getEmojiUrl, restClient } from './discord';
 
 const LengthPerEmbed = 54;
 const ZeroWidthSpace = '​';
@@ -72,12 +72,24 @@ export function convertToDisplayEmbeds<T>(
   });
 }
 
+type IValkyrieReq = Pick<IValkyrie, 'name' | 'emoji' | 'nature' | 'augEmoji'>;
+
+export function UserValkyrieListDisplay(userValkyrie: IUserValkyrie, valkyrie: IValkyrieReq): string;
 export function UserValkyrieListDisplay(
   userValkyrie: Omit<IUserValkyrie, 'valkyrie'> & {
-    valkyrie: Pick<IValkyrie, 'name' | 'emoji' | 'nature' | 'augEmoji'>;
+    valkyrie: IValkyrieReq;
   },
+): string;
+export function UserValkyrieListDisplay(
+  userValkyrie:
+    | (Omit<IUserValkyrie, 'valkyrie'> & {
+        valkyrie: IValkyrieReq;
+      })
+    | IUserValkyrie,
+  _valkyrie?: IValkyrieReq,
 ): string {
-  const { valkyrie, rank, coreRank } = userValkyrie;
+  const { rank, coreRank } = userValkyrie;
+  const valkyrie = isObjectIdOrHexString(userValkyrie.valkyrie) ? _valkyrie! : (userValkyrie.valkyrie as IValkyrieReq);
   return `**${valkyrie.name}** ${valkyrie.emoji ?? '-'} ${
     ValkyrieNaturesDisplay[valkyrie.nature].emoji
   } \`${rank.toUpperCase()}\`${coreRank ? ` ${valkyrie.augEmoji ?? '-'} ${coreRank}⭐` : ''}`;
@@ -87,6 +99,53 @@ export function ValkyrieListDisplay(valkyrie: IValkyrie): string {
   return `**${valkyrie.name}** ${valkyrie.emoji ?? '-'} \`${valkyrie.acronyms[0]}\` ${
     ValkyrieNaturesDisplay[valkyrie.nature].emoji
   }${'augEmoji' in valkyrie && valkyrie.augEmoji ? ` ${valkyrie.augEmoji}` : ''}`;
+}
+
+export function ValkyrieDisplayEmbed(
+  valkyrie: Pick<IValkyrie, 'name' | 'nature' | 'baseRank' | 'acronyms' | 'augEmoji' | 'emoji'>,
+  character: Pick<ICharacter, 'name'>,
+  options: { title: string; description?: string; color?: typeof Colors[keyof typeof Colors] },
+): APIEmbed {
+  const { title, description, color } = options;
+  const emojiUrl = getEmojiUrl(valkyrie.emoji ?? '');
+  return {
+    title,
+    ...(color && { color }),
+    ...(description && { description }),
+    ...(emojiUrl && { thumbnail: { url: emojiUrl } }),
+    fields: [
+      {
+        name: 'Name',
+        value: valkyrie.name,
+        inline: true,
+      },
+      {
+        name: 'Character',
+        value: character.name,
+        inline: true,
+      },
+      {
+        name: 'Nature',
+        value: `${ValkyrieNaturesDisplay[valkyrie.nature].display} ${ValkyrieNaturesDisplay[valkyrie.nature].emoji}`,
+        inline: true,
+      },
+      {
+        name: 'Base Rank',
+        value: valkyrie.baseRank.toUpperCase(),
+        inline: true,
+      },
+      {
+        name: 'Acronyms',
+        value: `\`${valkyrie.acronyms.join('`, `')}\``,
+        inline: true,
+      },
+      {
+        name: 'Augment Core',
+        value: 'augEmoji' in valkyrie && valkyrie.augEmoji ? `*Available* ${valkyrie.augEmoji}` : '*Not available*',
+        inline: true,
+      },
+    ],
+  };
 }
 
 export function CharacterListDisplay(character: ICharacter): string {

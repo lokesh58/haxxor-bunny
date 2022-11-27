@@ -18,6 +18,7 @@ import {
   getUserValkyrieDisplayEmbeds,
   getValkyriesByKeyword,
   isValidAugmentCoreRank,
+  UserValkyrieListDisplay,
 } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
@@ -242,7 +243,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
         embeds: [
           {
             title: 'Update My Valkyries Data',
-            description: `✅ Valkyrie data for **${valk.name}** updated successfully`,
+            description: `✅ ${UserValkyrieListDisplay(userValk, valk)}`,
             color: Colors.Green,
           },
         ],
@@ -358,11 +359,7 @@ const MyValkyriesCommand: HaxxorBunnyCommand = {
           continue;
         }
         toSave.push(userValk);
-        results.push(
-          `✅ **${valk.name}** ${valk.emoji ?? '-'}${info.rank ? ` \`${info.rank.toUpperCase()}\`` : ''}${
-            info.coreRank ? ` ${info.coreRank}⭐` : ''
-          }`,
-        );
+        results.push(`✅ ${UserValkyrieListDisplay(userValk, valk)}`);
       }
       await UserValkyrie.bulkSave(toSave);
       await this.editOriginalResponse({
