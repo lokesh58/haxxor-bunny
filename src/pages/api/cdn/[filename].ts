@@ -17,6 +17,5 @@ export default async function CDNHandler(req: NextApiRequest, res: NextApiRespon
   }
   res.setHeader('Content-Type', cdnFile.type);
   res.setHeader('Content-Length', Buffer.byteLength(cdnFile.buffer));
-  res.write(cdnFile.buffer);
-  res.end();
+  res.send(cdnFile.buffer);
 }
