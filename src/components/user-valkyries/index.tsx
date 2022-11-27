@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import type { FC } from 'react';
 import { FaExclamationCircle, FaStar } from 'react-icons/fa';
 import { trpc } from '../../utils/trpc';
+import ImageWithFallback from '../image-with-fallback';
 import Spinner from '../spinner';
 import styles from './styles.module.css';
 
@@ -28,18 +28,16 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
               return (
                 <div key={`${v.name}-${v.rank}-${v.augmentCoreRank}`} className={styles.valkyrieCard}>
                   <div className={styles.images}>
-                    <Image
-                      src={v.picUrl ?? '/images/unknown.png'}
-                      alt=""
+                    <ImageWithFallback
+                      src={v.picUrl}
                       height={valkImgSize}
                       width={valkImgSize}
                       objectFit="contain"
                       title={v.name}
                     />
                     <div className={styles.natureImg}>
-                      <Image
-                        src={v.nature.picUrl ?? ''}
-                        alt=""
+                      <ImageWithFallback
+                        src={v.nature.picUrl}
                         height={natureImgSize}
                         width={natureImgSize}
                         objectFit="contain"
@@ -55,9 +53,8 @@ const UserValkyries: FC<{ userId: string }> = ({ userId }) => {
                     </div>
                     {v.augmentCoreRank ? (
                       <div className={styles.battlesuitRank}>
-                        <Image
-                          src={v.augmentPicUrl ?? '/images/unknown.png'}
-                          alt=""
+                        <ImageWithFallback
+                          src={v.augmentPicUrl}
                           aria-label="augment core rank"
                           height={rankIconsSize}
                           width={rankIconsSize}

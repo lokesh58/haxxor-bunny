@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { SingleEmojiRegex, unknownTypeResp } from '../constants/discord';
 import { PossibleAugmentBaseRanks, ValkyrieBaseRanks, ValkyrieNatures, ValkyrieNaturesDisplay } from '../constants/hi3';
 import Valkyrie from '../models/hi3/Valkyrie';
+import { uploadDiscordEmojiToCDN } from '../utils/cdn';
 import {
   canValkyrieHaveAugment,
   deleteValkyrie,
@@ -175,7 +176,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
             ...rest,
           })),
       );
-      const { name, acronyms, augEmoji, baseRank } = args;
+      const { name, acronyms, emoji, augEmoji, baseRank } = args;
       if (!isValidAugmentBaseRank(baseRank) && augEmoji) {
         return this.respond({
           type: InteractionResponseType.ChannelMessageWithSource,
@@ -204,6 +205,8 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
         });
         return;
       }
+      if (emoji) await uploadDiscordEmojiToCDN(emoji);
+      if (augEmoji) await uploadDiscordEmojiToCDN(augEmoji);
       await new Valkyrie(args).save();
       await this.editOriginalResponse({
         embeds: [
@@ -326,8 +329,14 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
           return;
         }
       }
-      if (emoji) valk.emoji = emoji;
-      if (canHaveAug && augEmoji) valk.augEmoji = augEmoji;
+      if (emoji) {
+        await uploadDiscordEmojiToCDN(emoji);
+        valk.emoji = emoji;
+      }
+      if (canHaveAug && augEmoji) {
+        await uploadDiscordEmojiToCDN(augEmoji);
+        valk.augEmoji = augEmoji;
+      }
       await valk.save();
       await this.editOriginalResponse({
         embeds: [

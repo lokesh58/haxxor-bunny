@@ -9,6 +9,7 @@ import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import { SingleEmojiRegex, unknownTypeResp } from '../constants/discord';
 import Character from '../models/hi3/Character';
+import { uploadDiscordEmojiToCDN } from '../utils/cdn';
 import { deleteCharacter, forceDeleteCharacter, getCharactersByKeyword } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
@@ -105,7 +106,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
           emoji: z.string().regex(SingleEmojiRegex, { message: 'Invalid Emoji' }).optional(),
         }),
       );
-      const { name } = args;
+      const { name, emoji } = args;
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
@@ -121,6 +122,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
         });
         return;
       }
+      if (emoji) await uploadDiscordEmojiToCDN(emoji);
       await new Character(args).save();
       await this.editOriginalResponse({
         embeds: [
@@ -144,6 +146,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
         }),
       );
       const { character: charId, ...updateInfo } = args;
+      const { emoji } = updateInfo;
       if (!Object.values(updateInfo).filter(Boolean).length) {
         return this.respond({
           type: InteractionResponseType.ChannelMessageWithSource,
@@ -156,6 +159,7 @@ const ManageCharactersCommand: HaxxorBunnyCommand = {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
+      if (emoji) await uploadDiscordEmojiToCDN(emoji);
       const updatedChar = await Character.findByIdAndUpdate(charId, updateInfo);
       await this.editOriginalResponse({
         embeds: [
