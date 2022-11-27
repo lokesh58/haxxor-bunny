@@ -4,6 +4,8 @@ export const BotHomepageUrl = '/';
 
 export const BotInviteUrl = '/invite';
 
+export const CDNUrl = '/cdn';
+
 export const UserValksUrl = '/user-valks';
 
 export const ExternalBotInviteUrl =
