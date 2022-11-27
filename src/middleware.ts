@@ -6,6 +6,7 @@ export default async function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === BotInviteUrl) {
     return NextResponse.redirect(ExternalBotInviteUrl);
   }
+  // Handle CDN requests
   if (request.nextUrl.pathname.startsWith(CDNUrl)) {
     const rewriteUrl = request.nextUrl.clone();
     rewriteUrl.pathname = `/api${request.nextUrl.pathname}`;
