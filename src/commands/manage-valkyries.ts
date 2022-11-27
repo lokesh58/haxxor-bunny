@@ -9,6 +9,7 @@ import { isValidObjectId, Types } from 'mongoose';
 import { z } from 'zod';
 import { SingleEmojiRegex, unknownTypeResp } from '../constants/discord';
 import { PossibleAugmentBaseRanks, ValkyrieBaseRanks, ValkyrieNatures, ValkyrieNaturesDisplay } from '../constants/hi3';
+import Character from '../models/hi3/Character';
 import Valkyrie from '../models/hi3/Valkyrie';
 import { uploadDiscordEmojiToCDN } from '../utils/cdn';
 import {
@@ -18,6 +19,7 @@ import {
   getCharactersByKeyword,
   getValkyriesByKeyword,
   isValidAugmentBaseRank,
+  ValkyrieDisplayEmbed,
 } from '../utils/hi3';
 import HaxxorBunnyCommand, {
   BaseApplicationCommandAutocompleteHandler,
@@ -176,7 +178,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
             ...rest,
           })),
       );
-      const { name, acronyms, emoji, augEmoji, baseRank } = args;
+      const { name, acronyms, emoji, augEmoji, baseRank, character } = args;
       if (!isValidAugmentBaseRank(baseRank) && augEmoji) {
         return this.respond({
           type: InteractionResponseType.ChannelMessageWithSource,
@@ -191,6 +193,19 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
       await this.respond({
         type: InteractionResponseType.DeferredChannelMessageWithSource,
       });
+      const char = await Character.findById(character);
+      if (!char) {
+        await this.editOriginalResponse({
+          embeds: [
+            {
+              title: 'Create Valkyrie',
+              description: "❌ Given character doesn't exist",
+              color: Colors.Red,
+            },
+          ],
+        });
+        return;
+      }
       if (await Valkyrie.exists({ $or: [{ name }, { acronyms: new RegExp(`^(${acronyms.join('|')})$`, 'i') }] })) {
         await this.editOriginalResponse({
           embeds: [
@@ -207,14 +222,14 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
       }
       if (emoji) await uploadDiscordEmojiToCDN(emoji);
       if (augEmoji) await uploadDiscordEmojiToCDN(augEmoji);
-      await new Valkyrie(args).save();
+      const valk = await new Valkyrie(args).save();
       await this.editOriginalResponse({
         embeds: [
-          {
+          ValkyrieDisplayEmbed(valk, char, {
             title: 'Create Valkyrie',
             description: `✅ Valkyrie **${name}** created successfully`,
             color: Colors.Green,
-          },
+          }),
         ],
       });
     }
@@ -318,7 +333,7 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
           await this.editOriginalResponse({
             embeds: [
               {
-                title: 'Create Valkyrie',
+                title: 'Update Valkyrie',
                 description: `❌ Valkyrie with acronym as${
                   newAdded.length > 1 ? ' atleast one of' : ''
                 } \`${newAdded.join('`, `')}\` already exists`,
@@ -338,13 +353,14 @@ const ManageValkyriesCommand: HaxxorBunnyCommand = {
         valk.augEmoji = augEmoji;
       }
       await valk.save();
+      const char = (await Character.findById(valk.character))!;
       await this.editOriginalResponse({
         embeds: [
-          {
+          ValkyrieDisplayEmbed(valk, char, {
             title: 'Update Valkyrie',
             description: `✅ Valkyrie **${valk.name}** updated successfully`,
             color: Colors.Green,
-          },
+          }),
         ],
       });
     }
