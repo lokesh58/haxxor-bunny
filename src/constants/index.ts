@@ -13,4 +13,4 @@ export const ExternalBotInviteUrl =
 
 export const BotSupportServerInviteLink = 'https://discord.gg/h9bHnxX9XK';
 
-export const unknownImageUrl = '/images/unknown.png';
+export { default as unknownImage } from '../../public/images/unknown.png';

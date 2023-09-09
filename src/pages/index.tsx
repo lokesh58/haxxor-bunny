@@ -1,5 +1,6 @@
 import { GetStaticProps, NextPage } from 'next';
 import Image from 'next/image';
+import haxxorBunnyPfp from '../../public/images/haxxor-bunny-pfp.png';
 import commands from '../commands';
 import HaxxorBunnyCommand from '../commands/base';
 import { BotInviteUrl, BotName, BotSupportServerInviteLink } from '../constants';
@@ -14,13 +15,7 @@ const Home: NextPage<HomeProps> = ({ commandDisplayData }) => {
   return (
     <>
       <h1 className={styles.heading}>
-        <Image
-          src="/images/haxxor-bunny-pfp.png"
-          alt={BotName}
-          width={pfpSize}
-          height={pfpSize}
-          className={styles.botPfp}
-        />
+        <Image src={haxxorBunnyPfp} alt={BotName} width={pfpSize} height={pfpSize} className={styles.botPfp} />
         <span className={styles.botName}>{BotName}</span>
       </h1>
       <div className={styles.links}>
