@@ -10,6 +10,7 @@ node_modules
 .nvmrc
 .prettierignore
 .prettierrc.json
+compose.yaml
 Dockerfile
 next-env.d.ts
 README.md
