@@ -4,6 +4,7 @@
 /node_modules
 /.pnp
 .pnp.js
+.pnpm-store
 
 # testing
 /coverage
@@ -37,6 +38,7 @@ next-env.d.ts
 
 # Editor
 /.vscode
+/.devcontainer
 
 # Package Manager
 pnpm-lock.yaml

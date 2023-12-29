@@ -1,0 +1,15 @@
+.devcontainer
+.git
+.next
+.pnpm-store
+node_modules
+.dockerignore
+.eslintignore
+.eslintrc.json
+.gitignore
+.nvmrc
+.prettierignore
+.prettierrc.json
+Dockerfile
+next-env.d.ts
+README.md
