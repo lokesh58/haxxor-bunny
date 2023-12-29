@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getFile } from '../../../utils/cdn';
+import dbConnect from '../../../utils/dbConnect';
 
 export default async function CDNHandler(req: NextApiRequest, res: NextApiResponse): Promise<void> {
   if (req.method !== 'GET') {
@@ -8,6 +9,7 @@ export default async function CDNHandler(req: NextApiRequest, res: NextApiRespon
     res.end();
     return;
   }
+  await dbConnect();
   const filename = req.query.filename as string;
   const cdnFile = await getFile(filename);
   if (!cdnFile) {

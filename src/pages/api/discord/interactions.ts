@@ -3,19 +3,19 @@ import {
   APIInteraction,
   APIInteractionResponse,
   ApplicationCommandType,
-  Awaitable,
   InteractionResponseType,
   InteractionType,
 } from 'discord.js';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { unknownTypeResp } from '../../../constants/discord';
 import { applicationCommandAutocompleteHandler, chatInputApplicationCommandHandler } from '../../../utils/bot';
+import dbConnect from '../../../utils/dbConnect';
 import { verifyKey } from '../../../utils/discord';
 
-export default function discordInteractionsHandler(
+export default async function discordInteractionsHandler(
   req: NextApiRequest,
   res: NextApiResponse<string | APIInteractionResponse>,
-): Awaitable<void> {
+): Promise<void> {
   if (req.method !== 'POST') {
     return res.status(405).send('Method not allowed');
   }
@@ -25,6 +25,7 @@ export default function discordInteractionsHandler(
     return res.status(401).send('Bad request signature');
   }
 
+  await dbConnect();
   const interaction = req.body as APIInteraction;
   switch (interaction.type) {
     case InteractionType.Ping:
